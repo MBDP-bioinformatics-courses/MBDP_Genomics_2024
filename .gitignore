@@ -48,4 +48,6 @@ Opiskelijat_Bacterial-genomes.csv
 *.sam
 *.bam
 *.fasta*
+*/FASTQC/*
+00_LOGS/
 

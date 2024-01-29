@@ -27,7 +27,7 @@ First list all projects you're affiliated with in CSC.
 csc-workspaces
 ```
 
-You should see the course project `MBDP_genomics_2022`.
+You should see the course project `MBDP_genomics_2024`.
 So let's create a folder for you inside the scratch folder, you can find the path in the output from the previous command.
 
 ```bash
@@ -35,15 +35,27 @@ cd /scratch/project_2005590
 mkdir $USER
 ```
 
-Check with `ls`; which folder did `mkdir $USER` create?
+Check with `ls`; which folder did `mkdir $USER` create?  
 
-This directory (`/scratch/project_2005590/your-user-name`) is your working directory.  
+Navigate to your own folder and copy the course Github repository there. 
+
+```bash
+git clone https://github.com/MBDP-bioinformatics-courses/MBDP_Genomics_2024.git
+```
+
+This directory (`/scratch/project_2005590/your-user-name/MBDP_Genomics_2024`) is your working directory.  
 Every time you log into Puhti, you should use `cd` to navigate to this directory, and **all the scripts are to be run in this folder**.  
 
-The raw data used on this course can be found in `/scratch/project_2005590/COURSE_FILES/RAWDATA_ILLUMINA`.  
+The raw data used on this course can be found in `/scratch/project_2005590/RAWDATA/{STRAIN}`. Where {STRAIN} is either `KLB3.1` or `WOD100`.   
 Instead of copying the data we will use links to this folder in all of the needed tasks.  
-Why don't we want 14 students copying data to their own folders?
+Why don't we want 24 students copying data to their own folders?
 
+Softlinks are made with `ln -s`. When you have chosen the strain you want to work with, make a softlink to all of the reads files under the folder `01_RAW_READS`.  
+Remember to change the strain name in the command below.  
+
+```bash
+ln -s /scratch/project_2005590/RAWDATA/{STRAIN}/* 01_RAW_READS/
+```
 
 ## Interactive use of Puhti
 
@@ -70,7 +82,7 @@ You always need to specify the accounting project (`-A`, `--account`). Otherwise
 
 ## QC and trimming for Illumina reads
 QC for the raw data takes few minutes, depending on the allocation.  
-Go to your working directory and make a folder called e.g. `fastqc_raw` for the QC reports.  
+Go to your working directory and make a folder called `01_RAW_READS/FASTQC` for the QC reports of Illumina data.  
 
 QC does not require lot of memory and can be run on the interactive nodes using `sinteractive`.
 
@@ -81,76 +93,45 @@ sinteractive -A project_2005590
 module load biokit
 ```
 
-Now each group will work with their own sequences. Create the variables R1 and R2 to represent the path to your files. Do that just for the strain you will use:
+### Running FastQC
+Run `FastQC` for the raw Illumina reads in the 01_RAW_READS folder. What does the `-o` and `-t` flags refer to?
 
 ```bash
-#### Illumina Raw sequences for the cyanobacteria strain 328
-R1=/scratch/project_2005590/COURSE_FILES/RAWDATA_ILLUMINA/A045-328-GGTCCATT-AGTAGGCT-Tania-Shishido-run20211223R_S45_L001_R1_001.fastq.gz
-R2=/scratch/project_2005590/COURSE_FILES/RAWDATA_ILLUMINA/A045-328-GGTCCATT-AGTAGGCT-Tania-Shishido-run20211223R_S45_L001_R2_001.fastq.gz
-
-#### Illumina Raw sequences for the cyanobacteria strain 327
-R1=/scratch/project_2005590/COURSE_FILES/RAWDATA_ILLUMINA/A044-327-2-CTTGCCTC-GTTATCTC-Tania-Shishido-run20211223R_S44_L001_R1_001.fastq.gz
-R2=/scratch/project_2005590/COURSE_FILES/RAWDATA_ILLUMINA/A044-327-2-CTTGCCTC-GTTATCTC-Tania-Shishido-run20211223R_S44_L001_R2_001.fastq.gz
-
-#### Illumina Raw sequences for the cyanobacteria strain 193
-R1=/scratch/project_2005590/COURSE_FILES/RAWDATA_ILLUMINA/Oscillatoriales-193_1.fastq.gz
-R2=/scratch/project_2005590/COURSE_FILES/RAWDATA_ILLUMINA/Oscillatoriales-193_2.fastq.gz
+fastqc path-to-R1-reads -o 01_RAW_READS/FASTQC -t 1
+fastqc path-to-R2-reads -o 01_RAW_READS/FASTQC -t 1
 ```
-
-
-You can check if your variable was set correctly by using:
 
 ```bash
-echo $R1
-echo $R2
+module load multiqc
+multiqc --interactive -o 01_RAW_READS/FASTQC/ 01_RAW_READS/FASTQC/
 ```
 
-
-
-
-### Running fastQC
-Run `fastQC` to the files stored in the RAWDATA folder. What does the `-o` and `-t` flags refer to?
-
-```bash
-fastqc $R1 -o fastqc_raw/ -t 1
-
-fastqc $R2 -o fastqc_raw/ -t 1
-```
-
-
-
-Copy the resulting HTML file to your local machine with `scp` from the command line (Mac/Linux) or *WinSCP* on Windows.  
+Copy the resulting HTML file (`multiqc_report.html`) to your local machine.  
 Have a look at the QC report with your favourite browser.  
 
-After inspecting the output, it should be clear that we need to do some trimming.  
-__What kind of trimming do you think should be done?__
+After inspecting the output, __what kind of trimming do you think should be done?__
 
 ### Running Cutadapt
 
-
-```bash
-# To create a variable to your cyanobacterial strain:
-strain=328
-```
-
-The adapter sequences that you want to trim are located after `-a` and `-A`.  
+The adapter sequences that you want to trim are specified with options `-a` and `-A`.  
 What is the difference with `-a` and `-A`?  
 And what is specified with option `-p` or `-o`?
 And how about `-m` and `-j`?  
 You can find the answers from Cutadapt [manual](http://cutadapt.readthedocs.io).
 
-Before running the script, we need to create the directory where the trimmed data will be written:
+Remember to change the strains name and modify the paths to the raw read files.  
 
 ```bash
-mkdir trimmed
+cutadapt \
+    -a CTGTCTCTTATACACATCT \
+    -A CTGTCTCTTATACACATCT \
+    -o 02_TRIMMED_READS/{STRAIN}_1.fastq.gz \
+    -p 02_TRIMMED_READS/{STRAIN}_2.fastq.gz \
+    path-to-R1-file \
+    path-to-R1-file \
+    --minimum-length 80 \
+    > 00_LOGS/cutadapt.log
 ```
-
-
-```bash
-cutadapt -a CTGTCTCTTATA -A CTGTCTCTTATA -o trimmed/"$strain"_cut_1.fastq -p trimmed/"$strain"_cut_2.fastq $R1 $R2 --minimum-length 80 > cutadapt.log
-
-```
-
 
 ### Running fastQC on the trimmed reads
 You could now check the `cutadapt.log` and answer:
@@ -163,84 +144,7 @@ You could now check the `cutadapt.log` and answer:
 
 Then make a new folder (`FASTQC`) for the QC files of the trimmed data and run fastQC and multiQC again as you did before trimming:
 
-```bash
-mkdir fastqc_out_trimmed
-fastqc trimmed/*.fastq -o fastqc_out_trimmed/ -t 1
-```
-
-
-
 Copy the resulting HTML file to your local machine as earlier and look how well the trimming went.  
-Did you find problems with the sequences? We can further proceed to quality control using Prinseq.
-
-
-#### Running Prinseq
-
-You could check the different parameters that can be used in prinseq:
-http://prinseq.sourceforge.net/manual.html
-
-
-
-```bash
-
-module load prinseq
-
-```
-
-Run program using the previous trimmed reads:
-
-```bash
-prinseq-lite.pl \
--fastq trimmed/"$strain"_cut_1.fastq \
--fastq2 trimmed/"$strain"_cut_2.fastq \
--min_qual_mean 25 \
--trim_left 10 \
--trim_right 8 \
--trim_qual_right 36 \
--trim_qual_left 30 \
--min_len 80 \
--out_good trimmed/"$strain"_pseq -log prinseq.log
-```
-
-You can check the `prinseq.log` and run again FastQC on the Prinseq trimmed sequences and copy them to your computer. You can now compare the quality of these sequences with the raw and cutadapt trimmed sequences FastQC results. Did you find any difference?
-
-
-
-```bash
-cd trimmed/
-
-fastqc "$strain"_pseq_*.fastq -o ../fastqc_out_trimmed/ -t 1
-
-```
-
-
-### Optional - To compare raw and trimmed sequences using multiqc
-
-
-To combine all the reports .zip in a new `combined_fastqc` folder with multiQC:
-```bash
-mkdir combined_fastqc
-
-cp fastqc_raw/*zip combined_fastqc/
-cp fastqc_out_trimmed/*zip combined_fastqc/
-
-```
-
-
-MultiQC is not pre-installed to Puhti, so we have created a virtual environment that has it.
-
-```bash
-export PROJAPPL=/projappl/project_2005590
-module purge
-module load bioconda/3
-source activate mbdp_genomics
-cd combined_fastqc/
-multiqc . --interactive
-```
-
-To leave the interactive node, type `exit`.  
-
-You can copy the file `multiqc_report.html` to your computer and open it in a web browser. Can you see any difference among the raw and trimmed reads?
 
 
 ## QC and trimming for Nanopore reads
