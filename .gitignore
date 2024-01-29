@@ -44,3 +44,5 @@ Opiskelijat_Bacterial-genomes
 # own additions
 Opiskelijat_Bacterial-genomes.csv
 .DS_Store
+*.fastq.gz
+
