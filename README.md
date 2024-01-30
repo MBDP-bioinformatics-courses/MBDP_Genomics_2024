@@ -248,19 +248,24 @@ After you're done, remember to close the interactive connection and free the res
 
 ## Assembly QC
 
-After the assembly has finished we will use Quality Assessment Tool for Genome Assemblies, [Quast](http://quast.sourceforge.net/) for (comparing and) evaluating our assemblies. Quast can be found from Puhti, but since there might be some incompability issues with Python2 and Python3, we will use a Singularity container that has Quast installed.  
-More about Singularity: [More general introduction](https://sylabs.io/guides/3.5/user-guide/introduction.html) and [a bit more CSC specific](https://docs.csc.fi/computing/containers/run-existing/).
+After the assemblies are we will use Quality Assessment Tool for Genome Assemblies, [Quast](http://quast.sourceforge.net/) for (comparing and) evaluating our assemblies.
 
+To make things a bit easier, make softlinks to each of the assembly files to the `03_ASSEMBLIES` folder.  
+
+```bash
+ön -s 
 ```
+
+```bash
 module purge
 module load quast
-quast.py --output-dir 03_ASSEMBLIES/QUAST
+quast.py --output-dir 03_ASSEMBLIES/QUAST ...
 ```
 
-Now you can move the file `03_ASSEMBLIES/QUAST/report.html` to your computer and look for the quality control files in the web browser of your preference.
+Now you can move the file `03_ASSEMBLIES/QUAST/report.html` to your computer and compare the different assemblies.  
 
 
-## Polishing the nanopore assembly
+## Polishing the nanopore assembly (OPTIONAL)
 
 Although Flye does some polishing at the end of the assembly, we can try to polish our nanopore assembly with the nanopore reads using [medaka](https://github.com/nanoporetech/medaka).  
 There are also many other polishing methods, you could also use the short-reads to polish the nanopore assembly. For medaka we need to choose a model based on how the basecalling was done.  
@@ -270,6 +275,26 @@ We will use the model `r1041_e82_400bps_hac_g632`.
 module purge
 module load medaka
 medaka_consensus -i path-to/trimmed_nanopore.fastq.gz -d path-to/flye_assembly.fasta -o 03_ASSEMBLIES/{STRAIN}_polished --threads $SLURM_CPUS_PER_TASK -m r1041_e82_400bps_hac_g632
+```
+
+## Genome completeness and contamination
+
+Now we have calculated different metrics for our genomes, but they don't really tell anything about the "real" quality of our genome.  
+We will use checkM to calculate the completeness and possible contamination in our genomes.  
+Allocate some resources (>40G memory & 4 threads) and run checkM.
+
+Before running checkM, it might be good to put all genomes to one folder.
+
+```
+singularity exec --bind $PWD:$PWD,$TMPDIR:/tmp /projappl/project_2005590/containers/checkM_1.1.3.sif \
+              checkm lineage_wf -x fasta PATH/TO/GENOME/FOLDER OUTPUT/FOLDER -t 4 --tmpdir /tmp
+```
+
+If you missed the output of checkM, you can re-run just the last part with:
+
+```
+singularity exec --bind $PWD:$PWD,$TMPDIR:/tmp /projappl/project_2005590/containers/checkM_1.1.3.sif \
+              checkm qa ./OUTPUT/lineage.ms ./OUTPUT
 ```
 
 ## Calculate the genome coverage
@@ -306,36 +331,13 @@ This command will sum all the numbers in the fourth column of the file `Coverage
 cat CoverageTotal.bedgraph | awk '{total+=$4} END {print total/NR}'
 ```
 
-## Genome completeness and contamination
-
-Now we have calculated different metrics for our genomes, but they don't really tell anything about the "real" quality of our genome.  
-We will use checkM to calculate the completeness and possible contamination in our genomes.  
-Allocate some resources (>40G memory & 4 threads) and run checkM (v. 1.1.3.) from a singularity container.  
-
-Before running checkM, it might be good to put all genomes to one folder.
-
-```
-singularity exec --bind $PWD:$PWD,$TMPDIR:/tmp /projappl/project_2005590/containers/checkM_1.1.3.sif \
-              checkm lineage_wf -x fasta PATH/TO/GENOME/FOLDER OUTPUT/FOLDER -t 4 --tmpdir /tmp
-```
-
-If you missed the output of checkM, you can re-run just the last part with:
-
-```
-singularity exec --bind $PWD:$PWD,$TMPDIR:/tmp /projappl/project_2005590/containers/checkM_1.1.3.sif \
-              checkm qa ./OUTPUT/lineage.ms ./OUTPUT
-```
-
 ## Genome annotation with Prokka
 
-Now we can annotate our genome assembly using [Prokka](https://github.com/tseemann/prokka)
+Now we can annotate our genome assembly using [Bakta](https://github.com/oschwengers/bakta). 
 
 ```bash
 module purge
-module load biokit
-module load bioperl
-
-prokka --cpus 8 --outdir prokka_out --prefix your_strain_name path-to/your_assembly.fasta
+/projappl/project_2005590/bakta/bin/bakta 03_ASSEMBLIES/KLB_polished/consensus.fasta --db /scratch/project_2005590/DB/bakta/db/ --prefix KLB3.1 --output 04_ANNOTATION/KLB3.1 --keep-contig-headers --threads $SLURM_CPUS_PER_TASK 
 ```
 
 Check the files inside the output folder. Can you find the genes involved in the synthesis of Geosmin in one or more of these files?
@@ -356,7 +358,7 @@ We will use a tool called GTDB-tk to give some taxonomy to our genomes.
 
 This will use a lot of memory (> 200G), so allocate a new computing node for this.
 
-```
+```bash
 #############  (THIS HAS BEEN DONE ALREADY)  #########################
 ## download gtdb database
 # wget https://data.ace.uq.edu.au/public/gtdb/data/releases/latest/auxillary_files/gtdbtk_data.tar.gz
@@ -374,24 +376,25 @@ singularity exec --bind $GTDBTK_DATA_PATH:$GTDBTK_DATA_PATH,$PWD:$PWD,$TMPDIR:/t
 
 ## Pangenomics with Anvi'o
 
-
 We will run the whole anvi'o part interactively. So again, allocate a computing node with enough memory (>40G) and 8 threads.  
 
 Make a new folder for pangenomics
-```
+
+```bash
 mkdir pangenomics
 cd pangenomics
 ```
 
 Make sure you have at least a copy of each of your genomes in one folder and make a new environmental variable pointing there.
-```
+```bash
 GENOME_DIR=ABSOLUTE/PATH/TO/GENOME/DIR
 CONTAINERS=/projappl/project_2005590/containers/
 ```
 
 Then we will polish the contig names for each of the genomes before doing anything with the genomes.  
 And also copy few annotated reference genomes to be included in our pangenome.  
-```
+
+```bash
 singularity exec --bind $PWD:$PWD,$GENOME_DIR:/genomes $CONTAINERS/anvio_7.sif \
           anvi-script-reformat-fasta --simplify-names -o Oscillatoriales_193.fasta \
           -r reformat_193_report.txt /genomes/GENOME1.fasta
@@ -411,7 +414,7 @@ cp /scratch/project_2005590/COURSE_FILES/closest_oscillatoriales_genomes/*.gbf .
 
 Although you already annotated your genomes, we'll do it once more, because we changed the names of the contigs.
 
-```
+```bash
 module load biokit
 for strain in $(ls *.fasta); do prokka --cpus 8 --outdir ./${strain%.fasta}_PROKKA --prefix ${strain%.fasta} $strain; done
 ```
@@ -419,7 +422,7 @@ for strain in $(ls *.fasta); do prokka --cpus 8 --outdir ./${strain%.fasta}_PROK
 Now we have both Genbank files from the reference genomes and also from our own genomes.  
 Next things is to get the contigs, gene calls and annotations to separate files that anvi'o understands.
 
-```
+```bash
 for genome in $(ls */*.gbf)
 do
     singularity exec --bind $PWD:$PWD $CONTAINERS/anvio_7.sif \
@@ -433,7 +436,7 @@ done
 The pangenomcis part will be done using a anvi'o workflow (read more from here: )  
 And for that we need a file that specifies where the files from previous step are (called `fasta.txt`).  
 
-```
+```bash
 echo -e "name\tpath\texternal_gene_calls\tgene_functional_annotation" > fasta.txt
 for strain in $(ls */*-contigs.fa)
 do
@@ -444,7 +447,7 @@ done >> fasta.txt
 In addition to the `fasta.txt` file we need also a configuration file.  
 So make a file called `config.json` containing the following.  
 
-```
+```bash
 {
     "workflow_name": "pangenomics",
     "config_version": "2",
