@@ -50,4 +50,7 @@ Opiskelijat_Bacterial-genomes.csv
 *.fasta*
 */FASTQC/*
 00_LOGS/
+01_RAW_READS/
+02_TRIMMED_READS/
+03_ASSEMBLIES/
 

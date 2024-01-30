@@ -5,16 +5,15 @@ __Table of Contents:__
 2. [Interactive use of Puhti](#interactive-use-of-puhti)
 3. [QC and trimming for Illumina reads](#qc-and-trimming-for-illumina-reads)
 4. [QC and trimming for Nanopore reads](#qc-and-trimming-for-nanopore-reads)
-5. [Genome assembly with Spades](#genome-assembly-with-spades)
-6. [Eliminate contaminant contigs with Kaiju](#eliminate-contaminant-contigs-with-kaiju)
-7. [Assembly QC](#assembly-qc)
-8. [Calculate the genome coverage](#calculate-the-genome-coverage)
-9. [Genome completeness and contamination](#genome-completeness-and-contamination)
-10. [Genome annotation with Prokka](#genome-annotation-with-prokka)
-11. [Name the strain](#name-the-strain)
-12. [Pangenomics](#pangenomics-with-anvio)
-13. [Detection  of secondary  metabolites biosynthesis gene clusters](#detection-of-secondary-metabolites-biosynthesis-gene-clusters)
-14. [Comparison of secondary metabolites biosynthesis gene clusters](#comparison-of-secondary-metabolites-biosynthesis-gene-clusters)
+5. [Genome assembly](#genome-assembly)
+6. [Assembly QC](#assembly-qc)
+7. [Calculate the genome coverage](#calculate-the-genome-coverage)
+8. [Genome completeness and contamination](#genome-completeness-and-contamination)
+9. [Genome annotation with Prokka](#genome-annotation-with-prokka)
+10. [Name the strain](#name-the-strain)
+11. [Pangenomics](#pangenomics-with-anvio)
+12. [Detection  of secondary  metabolites biosynthesis gene clusters](#detection-of-secondary-metabolites-biosynthesis-gene-clusters)
+13. [Comparison of secondary metabolites biosynthesis gene clusters](#comparison-of-secondary-metabolites-biosynthesis-gene-clusters)
 
 
 
@@ -97,17 +96,17 @@ module load biokit
 Run `FastQC` for the raw Illumina reads in the 01_RAW_READS folder. What does the `-o` and `-t` flags refer to?
 
 ```bash
-fastqc path-to-R1-reads -o 01_RAW_READS/FASTQC -t 1
-fastqc path-to-R2-reads -o 01_RAW_READS/FASTQC -t 1
+fastqc path-to-R1-reads --outdir 01_RAW_READS/FASTQC
+fastqc path-to-R2-reads --outdir 01_RAW_READS/FASTQC
 ```
 
 ```bash
 module load multiqc
-multiqc --interactive -o 01_RAW_READS/FASTQC/ 01_RAW_READS/FASTQC/
+multiqc --interactive --outdir 01_RAW_READS/FASTQC/ 01_RAW_READS/FASTQC/*
 ```
 
-Copy the resulting HTML file (`multiqc_report.html`) to your local machine.  
-Have a look at the QC report with your favourite browser.  
+Copy the resulting HTML file (`multiqc_report.html`) to your local machine. You can also copy the individual FastQC output HTML files.  
+Have a look at the QC report(s) with your favorite browser.  
 
 After inspecting the output, __what kind of trimming do you think should be done?__
 
@@ -142,21 +141,17 @@ You could now check the `cutadapt.log` and answer:
 * How many base calls were quality-trimmed?
 * Overall, what is the percentage of base pairs that were kept?
 
-Then make a new folder (`FASTQC`) for the QC files of the trimmed data and run fastQC and multiQC again as you did before trimming:
-
-Copy the resulting HTML file to your local machine as earlier and look how well the trimming went.  
+Then make a new folder (`FASTQC`) in the `02_TRIMMED_READS` folder for the QC files of the trimmed data and run fastQC and multiQC again as you did before trimming.  
+Copy the resulting HTML file to your local machine and see how well the trimming went.  
 
 
 ## QC and trimming for Nanopore reads
 
 The QC for the Nanopore reads can be done with NanoPlot and NanoQC. They are plotting tools for long read sequencing data and alignments. You can read more about them in: [NanoPlot](https://github.com/wdecoster/NanoPlot) and [NanoQC](https://github.com/wdecoster/nanoQC)
 
+This run will require more computing resources, so you can apply for more memory or run as a batch job:
 
-The nanopore data you will use can be found in the folder `/scratch/project_2005590/COURSE_FILES/RAWDATA_NANOPORE`
-
-This run will require more computing resources, so you can apply for more memory or run in sbatch:
-
-First log out from the computing node
+First log out from the computing node (if you're still on one).  
 
 ```bash
 exit
@@ -165,21 +160,18 @@ exit
 Then open a new interactive task with more memory
 
 ```bash
-sinteractive -A project_2005590 -m 45000
+sinteractive -A project_2005590 -m 45000 -c 4
 ```
 NanoPlot and NanoQC are not pre-installed to Puhti so we need to reset the modules and activate the virtual environment. If the environment is already loaded you can skip this step.
-
-```bash
-export PROJAPPL=/projappl/project_2005590
-module purge
-module load bioconda/3
-source activate mbdp_genomics
-```
 
 Generate graphs for visualization of reads quality and length distribution
 
 ```bash
-NanoPlot -o nanoplot_out -t 4 -f png --fastq path-to/your_raw_nanopore_reads.fastq.gz
+/projappl/project_2005590/nanotools/bin/NanoPlot \
+    --outdir 01_RAW_READS/NanoPlot \
+    --threads 4 \
+    --format png \
+    --fastq path-to/your_raw_nanopore_reads.fastq.gz
 ```
 
 Transfer to your computer and check two plots inside the nanoplot output folder:
@@ -187,7 +179,9 @@ Reads quality distribution: `LengthvsQualityScatterPlot_kde.png`
 Reads length distribution: `Non_weightedLogTransformed_HistogramReadlength.png`
 
 ```bash
-nanoQC -o nanoQC_out path-to/your_raw_nanopore_reads.fastq.gz
+/projappl/project_2005590/nanotools/bin/nanoQC \
+    --outdir 01_RAW_READS/nanoQC \
+    path-to/your_raw_nanopore_reads.fastq.gz
 ```
 
 Using the Puhti interactive mode, check the file `nanoQC.html` inside the ouput folder of the nanoQC job.
@@ -198,57 +192,53 @@ Using the Puhti interactive mode, check the file `nanoQC.html` inside the ouput 
 
 ### Trimming and quality filtering of reads
 
-The following command will trim the first 30 bases and the last 20 bases of each read, exclude reads with a phred score below 12 and exclude reads with less than 1000 bp.
+We'll use a program called [chopper](https://github.com/wdecoster/chopper) for quality filtering and trimming.  
+
+The following command will trim the first XX bases and the last YY bases of each read, exclude reads with a phred score below ZZ and exclude reads with less than XYZ bp.
 
 ```bash
-mkdir trimmed_nanopore
-
-cd trimmed_nanopore
-
-gunzip -c /scratch/project_2005590/COURSE_FILES/RAWDATA_NANOPORE/raw.nanopore.328.fastq.gz | NanoFilt -q 12 -l 1000 --headcrop 30 --tailcrop 20 | gzip > nanopore.trimmed.fastq.gz
+gunzip -c path-to/your_raw_nanopore_reads.fastq.gz |\
+    /projappl/project_2005590/nanotools/bin/chopper -q ZZ -l XYZ --headcrop XX --tailcrop YY |\
+    gzip > 02_TRIMMED_READS/{STRAIN}_nanopore.fastq.gz
 ```
 
 ### Optional - Visualizing the trimmed data
+
+Use NanoPlot to see how the trimming worked out.  
+
 ```bash
-NanoPlot -o nanoplot_out -t 4 -f png --fastq nanopore.trimmed.fastq.gz
+/projappl/project_2005590/nanotools/bin/NanoPlot ... 
 ```
 
+## Genome assembly 
 
-## Genome assembly with Spades
 Now that you have good trimmed sequences, we can assemble the reads.
 For assembling you will need more resources than the default.  
-Allocate 8 cpus, 20000 Mb of memory (20G) and 4 hours.  
+Allocate 4 cpus, 40000 Mb of memory (40G) and 2 hours.  
 Remember also the accounting project, `project_2005590`.
 
 ```bash
-
-# Remember to modify  this
 sinteractive --account --time --mem --cores
-
-
-# Deactivate the current virtual environment and reset the modules before loading Spades
-source deactivate mbdp_genomics
-module purge
-
-
-# Activate program
-module load gcc/9.1.0
-module load spades/3.15.0
-
-
-# Cyano strain and processed reads
-strain=328
-R1=trimmed/"$strain"_pseq_1.fastq
-R2=trimmed/"$strain"_pseq_2.fastq
-
 ```
 
-### Run Spades
-
-We will use the trimmed Illumina and Nanopore sequences to assemble the cyanobacteria genomes. Check the commands used using `spades.py -h`
+### Nanopore only assembly with FLye
 
 ```bash
-spades.py --nanopore nanopore.trimmed.fastq.gz -1 $R1 -2 $R2 -o spades_hybrid_out -t 8
+/projappl/project_2005590/flye/bin/flye --nano-hq 02_TRIMMED_READS/WOD100_nanopore.fastq.gz --out-dir 03_ASSEMBLIES/flye --threads 6 
+ ```
+
+### Illumina only assembly with spades
+
+```bash
+module purge
+module load spades/3.15.0
+spades.py -1 02_TRIMMED_READS/WOD100_1.fastq.gz -2 02_TRIMMED_READS/WOD100_2.fastq.gz -o 03_ASSEMBLIES/spades -t 6 --isolate
+```
+
+### Hybrid assembly with spades
+
+```bash
+spades.py --nanopore 02_TRIMMED_READS/WOD100_nanopore.fastq.gz -1 02_TRIMMED_READS/WOD100_1.fastq.gz -2 02_TRIMMED_READS/WOD100_2.fastq.gz -o 03_ASSEMBLIES/hybrid -t 6 --isolate
 ```
 
 If you have time, you can try different options for assembly. Read more from [here](https://cab.spbu.ru/files/release3.15.0/manual.html) and experiment.  
@@ -256,65 +246,31 @@ Remember to rename the output folder for your different experiments.
 
 After you're done, remember to close the interactive connection and free the resources with `exit`.
 
-
-
-## Eliminate contaminant contigs with Kaiju
-
-Kaiju is no pre-installed to Puhti so we need to reset the modules and activate the virtual environment again.
-
-```bash
-export PROJAPPL=/projappl/project_2005590
-module purge
-module load bioconda/3
-source activate mbdp_genomics
-```
-
-### Run kaiju batch script
-To run Kaiju you can use the script in `/scratch/project_2005590/COURSE_FILES/run_kaiju.sh`. This script takes your assembly as input and will eliminate all sequences not classified as cyanobacteria, creating a new "clean" file. You could go through the script and look at https://docs.csc.fi/computing/running/creating-job-scripts-puhti/ and `kaiju -h` before run in your folder:
-
-
-```bash
-sbatch /scratch/project_2005590/COURSE_FILES/run_kaiju.sh -i spades_hybrid_out/scaffolds.fasta -o kaiju_out
-```
-
-You can check the status of your job with:  
-
-```bash
-squeue -l -u $USER
-```
-
-After the job has finished, you can see how much resources it actually used and how many billing units were consumed.
-
-```bash
-seff JOBID
-```
-
-**NOTE:** Change **JOBID** the the job id number you got when you submitted the script.
-
-
-### Optional - Visualizing the taxonomic assignment of contigs with the Kaiju web server
-
-You can check the taxonomic assignment of the assembled contigs with some visuals using the [Kaiju web server](https://kaiju.binf.ku.dk/server).
-
-This web tool only accepts compressed FASTA files (or FASTQ), so we need to compress our assembled genome file using `gzip`. The parameters on the web server can be left as is.
-
-```bash
-gzip -c your_assembly.fasta > your_assembly.fasta.gz
-```
-
-
 ## Assembly QC
 
 After the assembly has finished we will use Quality Assessment Tool for Genome Assemblies, [Quast](http://quast.sourceforge.net/) for (comparing and) evaluating our assemblies. Quast can be found from Puhti, but since there might be some incompability issues with Python2 and Python3, we will use a Singularity container that has Quast installed.  
 More about Singularity: [More general introduction](https://sylabs.io/guides/3.5/user-guide/introduction.html) and [a bit more CSC specific](https://docs.csc.fi/computing/containers/run-existing/).
 
 ```
-singularity exec --bind $PWD:$PWD /projappl/project_2005590/containers/quast_5.0.2.sif \
-                                                  quast.py -o quast_out kaiju_out_filtered.fasta -t 4
+module purge
+module load quast
+quast.py --output-dir 03_ASSEMBLIES/QUAST
 ```
 
-Now you can move the file `quast_out/report.html` to your computer and look for the quality control files in the web browser of your preference.
+Now you can move the file `03_ASSEMBLIES/QUAST/report.html` to your computer and look for the quality control files in the web browser of your preference.
 
+
+## Polishing the nanopore assembly
+
+Although Flye does some polishing at the end of the assembly, we can try to polish our nanopore assembly with the nanopore reads using [medaka](https://github.com/nanoporetech/medaka).  
+There are also many other polishing methods, you could also use the short-reads to polish the nanopore assembly. For medaka we need to choose a model based on how the basecalling was done.  
+We will use the model `r1041_e82_400bps_hac_g632`. 
+
+```bash
+module purge
+module load medaka
+medaka_consensus -i path-to/trimmed_nanopore.fastq.gz -d path-to/flye_assembly.fasta -o 03_ASSEMBLIES/{STRAIN}_polished --threads $SLURM_CPUS_PER_TASK -m r1041_e82_400bps_hac_g632
+```
 
 ## Calculate the genome coverage
 
