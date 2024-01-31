@@ -212,10 +212,8 @@ Use NanoPlot to see how the trimming worked out.
 
 ## Genome assembly 
 
-Now that you have good trimmed sequences, we can assemble the reads.
-For assembling you will need more resources than the default.  
-Allocate 4 cpus, 40000 Mb of memory (40G) and 2 hours.  
-Remember also the accounting project, `project_2005590`.
+Now that you have good trimmed sequences, we can assemble the reads. For assembling you will need more resources than the default.  
+Allocate 4 cpus, 40000 Mb of memory (40G) and 2 hours. Remember also the accounting project, `project_2005590`.  
 
 ```bash
 sinteractive --account --time --mem --cores
@@ -224,7 +222,7 @@ sinteractive --account --time --mem --cores
 ### Nanopore only assembly with FLye
 
 ```bash
-/projappl/project_2005590/flye/bin/flye --nano-hq 02_TRIMMED_READS/WOD100_nanopore.fastq.gz --out-dir 03_ASSEMBLIES/flye --threads 6 
+/projappl/project_2005590/flye/bin/flye --nano-hq 02_TRIMMED_READS/WOD100_nanopore.fastq.gz --out-dir 03_ASSEMBLIES/flye --threads $SLURM_CPUS_PER_TASK
  ```
 
 ### Illumina only assembly with spades
@@ -232,38 +230,51 @@ sinteractive --account --time --mem --cores
 ```bash
 module purge
 module load spades/3.15.0
-spades.py -1 02_TRIMMED_READS/WOD100_1.fastq.gz -2 02_TRIMMED_READS/WOD100_2.fastq.gz -o 03_ASSEMBLIES/spades -t 6 --isolate
+spades.py -1 02_TRIMMED_READS/WOD100_1.fastq.gz -2 02_TRIMMED_READS/WOD100_2.fastq.gz -o 03_ASSEMBLIES/spades -t $SLURM_CPUS_PER_TASK --isolate
 ```
 
-### Hybrid assembly with spades
+### Hybrid assembly with Unicycler
+
+For the hybrid assembly (uses both long- and short-reads) we will use [Unicycler](https://github.com/rrwick/Unicycler). It can assemble short-reads, long-reads or both for hybrid assembly.  
+It is a bit out-dated, but might still be a good option for short-read-first hybrid assembly, when the long-read sequencing depth is not optimal. The best option would be to use long-read-first approach. For that there is [Trycycler](https://github.com/rrwick/Trycycler).   
+
+Unicycler has three different modes; conservative, normal and bold.  Conservative will produce the least misassemblies, but is the least likely to produce a cpmplete assembly. Bold is the most likely to produce a complete assembly with the risk of misassemblies. 
+Normal is the default, but you can change it if you feel bold or conservative today. Or keep it normal, even if you don't feel totally normal.  
 
 ```bash
-spades.py --nanopore 02_TRIMMED_READS/WOD100_nanopore.fastq.gz -1 02_TRIMMED_READS/WOD100_1.fastq.gz -2 02_TRIMMED_READS/WOD100_2.fastq.gz -o 03_ASSEMBLIES/hybrid -t 6 --isolate
+ /projappl/project_2005590/unicycler/bin/unicycler \
+    -l 02_TRIMMED_READS/WOD100_nanopore.fastq.gz \
+    -1 02_TRIMMED_READS/WOD100_1.fastq.gz \
+    -2 02_TRIMMED_READS/WOD100_2.fastq.gz \
+    --keep 0 \
+    --mode normal \
+    --out 03_ASSEMBLIES/WOD100_unicycler \
+    --threads $SLURM_CPUS_PER_TASK
 ```
 
-If you have time, you can try different options for assembly. Read more from [here](https://cab.spbu.ru/files/release3.15.0/manual.html) and experiment.  
-Remember to rename the output folder for your different experiments.
+After you're done, remember to close the interactive connection and free the resources with `exit`.  
+And to make things a bit easier for some of the next steps, copy each of the assembly files to the `03_ASSEMBLIES` folder.  
+There's one example, but do it for each of the three assemblies. And remember to nme them so that you know which is which.  
 
-After you're done, remember to close the interactive connection and free the resources with `exit`.
+```bash
+cp 03_ASSEMBLIES/KLB_flye/assembly.fasta 03_ASSEMBLY/flye_assembly.fasta
+```
+
+## Assembly graphs
+
+Each of the assemblers produces also an assembly graph. Download the assembly graphs (`.gfa` or `.fastg`) for each assembly to your local computer and open them with [Bandage](https://rrwick.github.io/Bandage/).  
 
 ## Assembly QC
 
 After the assemblies are we will use Quality Assessment Tool for Genome Assemblies, [Quast](http://quast.sourceforge.net/) for (comparing and) evaluating our assemblies.
 
-To make things a bit easier, make softlinks to each of the assembly files to the `03_ASSEMBLIES` folder.  
-
-```bash
-ön -s 
-```
-
 ```bash
 module purge
 module load quast
-quast.py --output-dir 03_ASSEMBLIES/QUAST ...
+quast.py --output-dir 03_ASSEMBLIES/QUAST 03_ASSEMBLIES/*.fasta
 ```
 
 Now you can move the file `03_ASSEMBLIES/QUAST/report.html` to your computer and compare the different assemblies.  
-
 
 ## Polishing the nanopore assembly (OPTIONAL)
 
@@ -277,70 +288,78 @@ module load medaka
 medaka_consensus -i path-to/trimmed_nanopore.fastq.gz -d path-to/flye_assembly.fasta -o 03_ASSEMBLIES/{STRAIN}_polished --threads $SLURM_CPUS_PER_TASK -m r1041_e82_400bps_hac_g632
 ```
 
+Copy also the polished assembly (`consensus.fasta`) to the `03_ASSEMBLIES` folder. 
+
 ## Genome completeness and contamination
 
-Now we have calculated different metrics for our genomes, but they don't really tell anything about the "real" quality of our genome.  
-We will use checkM to calculate the completeness and possible contamination in our genomes.  
-Allocate some resources (>40G memory & 4 threads) and run checkM.
+Now we have calculated different metrics for our genomes with QUAST and also done some polishing for the nanopore assembly, but we still don't know the "real" quality of our genome.  
+One way to get a better sense is to estimate the completeness of the assemblies.
 
-Before running checkM, it might be good to put all genomes to one folder.
+We will use [CheckM2](https://github.com/chklovski/CheckM2) to calculate the completeness and possible contamination in our genome.  
+Allocate some resources (>40G memory & 4 threads) and run CheckM2.
 
-```
-singularity exec --bind $PWD:$PWD,$TMPDIR:/tmp /projappl/project_2005590/containers/checkM_1.1.3.sif \
-              checkm lineage_wf -x fasta PATH/TO/GENOME/FOLDER OUTPUT/FOLDER -t 4 --tmpdir /tmp
-```
-
-If you missed the output of checkM, you can re-run just the last part with:
-
-```
-singularity exec --bind $PWD:$PWD,$TMPDIR:/tmp /projappl/project_2005590/containers/checkM_1.1.3.sif \
-              checkm qa ./OUTPUT/lineage.ms ./OUTPUT
-```
-
-## Calculate the genome coverage
-
-To calculate the genome coverage, all the reads used for the assembly must be mapped to the final genome. For that, we can use three programs: Bowtie2 to map the reads; Samtools to sort and make an index of the mapped reads; and bedtools to make the calculation.
-
-The entire workflow can take a long time, so the bedtools output with the sequencing depth for each base in the genome is available for each cyanobacterial strain in `/scratch/project_2005590/COURSE_FILES/RESULTS/coverage_[strain_number]/CoverageTotal.bedgraph` (don't forget to put the strain number).
-
-You can check the commands used in the workflow to generate this file in the script in: `/scratch/project_2005590/COURSE_FILES/SCRIPTS/genome_coverage_workflow.sh`.
-
-
-You can visualize the contents of the file `CoverageTotal.bedgraph` using the command `head` to show the first few lines.
-
-The first 10 lines of `CoverageTotal.bedgraph` for the strain 328 as an example:
-```bash
-NODE_2_length_2022818_cov_20.647969   0   1   19
-NODE_2_length_2022818_cov_20.647969   1   2   31
-NODE_2_length_2022818_cov_20.647969   2   3   53
-NODE_2_length_2022818_cov_20.647969   3   4   57
-NODE_2_length_2022818_cov_20.647969   4   6   60
-NODE_2_length_2022818_cov_20.647969   6   8   62
-NODE_2_length_2022818_cov_20.647969   8   9   69
-NODE_2_length_2022818_cov_20.647969   9   11  73
-NODE_2_length_2022818_cov_20.647969   11  12  74
-NODE_2_length_2022818_cov_20.647969   12  13  76
-```
-The first column refers to the contig name, the second and third column refers to the base position, and the fourth column is the sequencing depth of the base.
-
-In order to calculate the final genome coverage we must calculate the average sequencing depth of all the bases in the genome. We can achieve this by using `awk`.
-
-This command will sum all the numbers in the fourth column of the file `CoverageTotal.bedgraph` and divide by the total numbers of lines (number of bases), giving the average number. The final result will be printed in your screen (or you can save the result in a file using `> coverage.txt` in the end of the command).
+Then run CheckM2 with the following command. 
 
 ```bash
-cat CoverageTotal.bedgraph | awk '{total+=$4} END {print total/NR}'
+/projappl/project_2005590/tax_tools/bin/checkm2 predict \
+    --input 03_ASSEMBLIES \
+    --output-directory 03_ASSEMBLIES/CheckM2 \
+    --extension .fasta \
+    --ttable 11 \
+    --threads $SLURM_CPUS_PER_TASK \
+    --database_path /scratch/project_2005590/DB/CheckM2/CheckM2_database/uniref100.KO.1.dmnd 
 ```
 
-## Genome annotation with Prokka
+Hopefully now we have come to some conclusion about what is the best assembly and from now on we will continue with only one. 
+
+## Mapping reads and calculating the genome coverage (OPTIONAL)
+
+To calculate the genome coverage, all the reads used for the assembly must be mapped to the final genome. As an example we will only map the short reads against the genome.  
+For that, we use three programs: Bowtie2 to map the reads; Samtools to sort and make an index of the mapped reads; and bedtools to make the calculation. For long reads the process woul dbe the same, except you would need to use some othere mapping software (e.g. minimap2). 
+
+First build an index from the assembly.
+
+```bash
+module load bowtie2
+bowtie2-build 03_ASSEMBLIES/KLB3.1_unicycler.fasta 03_ASSEMBLIES/KLB3.1
+```
+
+Then map the short reads against the index.
+
+```bash
+bowtie2 -x 03_ASSEMBLIES/KLB3.1 -1 02_TRIMMED_READS/KLB3.1_1.fastq.gz -2 02_TRIMMED_READS/KLB3.1_2.fastq.gz --threads $SLURM_CPUS_PER_TASK -S 05_MAPPING/KLB3.1.sam
+```
+
+Then we process the resulting alignment file (`.sam`) and produce a sported and compressed format of that (`.bam`)
+
+```bash
+module purge
+module load samtools
+samtools view -Sb 05_MAPPING/KLB3.1.sam |samtools sort > 05_MAPPING/KLB3.1.bam
+samtools index 05_MAPPING/KLB3.1.bam
+```
+
+Then we can calculate the mean coveragre per each contig with [bamtocov](https://github.com/telatin/bamtocov). We will use one script (`average-coverage.py`) from the program that has can be found from `src` folder. It also needs the location of the actual `bamtocov` that it uses for calulating the coverage.  
+```bash
+python3 src/average-coverage.py 05_MAPPING/WOD100.bam --bin /projappl/project_2005590/bamtocov/bin/bamtocov
+```
+
+## Genome annotation with Bakta
 
 Now we can annotate our genome assembly using [Bakta](https://github.com/oschwengers/bakta). 
 
 ```bash
 module purge
-/projappl/project_2005590/bakta/bin/bakta 03_ASSEMBLIES/KLB_polished/consensus.fasta --db /scratch/project_2005590/DB/bakta/db/ --prefix KLB3.1 --output 04_ANNOTATION/KLB3.1 --keep-contig-headers --threads $SLURM_CPUS_PER_TASK 
+/projappl/project_2005590/bakta/bin/bakta \
+    --db /scratch/project_2005590/DB/bakta/db/ \
+    --prefix KLB3.1 \
+    --output 04_ANNOTATION \
+    --keep-contig-headers \
+    --threads $SLURM_CPUS_PER_TASK \
+    path-to/your-assembly
 ```
 
-Check the files inside the output folder. Can you find the genes involved in the synthesis of Geosmin in one or more of these files?
+Check the files inside the output folder.
 
 ### Optional - Annotation and visualization of CRISPR-Cas and Phages
 
