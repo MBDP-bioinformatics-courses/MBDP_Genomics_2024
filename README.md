@@ -1,4 +1,4 @@
-# MBDP genomics course 2024 (MBDP-105)
+# MBDP Genomics Course 2024 (MBDP-105)
 
 ## General introduction
 
