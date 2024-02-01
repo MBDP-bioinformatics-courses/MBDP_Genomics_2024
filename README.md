@@ -15,11 +15,9 @@ The course will be on Monday 5th of February, Wednesday 7th of February and Frid
 __Class rooms:__
 | Day | Time | Building | Room |  
 | --- | --- | --- | --- |  
-| Monday    | 10.15-17.45   | :office: Porthania                 | __P724__   |
-
-| Wednesday | 10.15-17.45   | :classical_building: Main Building | __U4079__  | 
-
-| Friday    | 10.15-17.45   | :classical_building: Main Building | __U3039__  |
+| Monday    | 10-16   | :office: Porthania                 | __P724__   |
+| Wednesday | 10-16   | :classical_building: Main Building | __U4079__  | 
+| Friday    | 10-16   | :classical_building: Main Building | __U3039__  |
 
 ## Target group
 This course is targeted at PhD and MSc students who are interested in performing bacterial genomic analyses
@@ -35,8 +33,8 @@ This course is targeted at PhD and MSc students who are interested in performing
 Eduroam or Helsinki UniGuest networks are available
 
 ## Organizers and teachers
-:woman_technologist: Docent Jenni Hultman, Luke 
-:man_technologist: Docent Antti Karkman, University of Helsinki  
+:woman_technologist: Docent Jenni Hultman, LUKE 
+:man_technologist: University lecturer Antti Karkman, University of Helsinki  
 
 ## Feedback
 
@@ -354,7 +352,7 @@ Then run CheckM2 with the following command.
 
 Hopefully now we have come to some conclusion about what is the best assembly and from now on we will continue with only one. 
 
-## Mapping reads and calculating the genome coverage (OPTIONAL)
+## Mapping reads to the assembly and calculating the genome coverage (OPTIONAL)
 
 To calculate the genome coverage, all the reads used for the assembly must be mapped to the final genome. As an example we will only map the short reads against the genome.  
 For that, we use three programs: Bowtie2 to map the reads; Samtools to sort and make an index of the mapped reads; and bedtools to make the calculation. For long reads the process woul dbe the same, except you would need to use some othere mapping software (e.g. minimap2). 
@@ -386,14 +384,16 @@ Then we can calculate the mean coveragre per each contig with [bamtocov](https:/
 python3 src/average-coverage.py 05_MAPPING/WOD100.bam --bin /projappl/project_2005590/bamtocov/bin/bamtocov
 ```
 
-Inspect the output from coverage calculation. What is the average coverage over the whole genome?
+Inspect the output from coverage calculation. What is the average coverage over the whole genome? Note that if the genome is in multiple contigs, you will get mean coverage for each of them.  And if some of the contigs are plasmids, their coverage might be different from the rest of the genome. __But why?__
 
 ### Long-read mapping with minimap2 (OPTIONAL)
+
+An example how to map the long-reads to the assembly using [minimap2](https://github.com/lh3/minimap2).  
 
 ```bash
 module load minimap2
 module load samtools
-minimap2 -ax map-ont 03_ASSEMBLIES/KLB3.1_unicycler.fasta 02_TRIMMED_READS/KLB3.1_nanopore.fastq.gz |samtools view -Sb |samtools sort > 05_MAPPING/KLB3.1_nanopore.bam
+minimap2 -ax map-ont path-to/your-assembly.fasta path-to/trimmed-nanopore.fastq,gz |samtools view -Sb |samtools sort > 05_MAPPING/{STRAIN}_nanopore.bam
 ```
 
 ## Genome annotation with Bakta
@@ -404,7 +404,7 @@ Now we can annotate our genome assembly using [Bakta](https://github.com/oschwen
 module purge
 /projappl/project_2005590/bakta/bin/bakta \
     --db /scratch/project_2005590/DB/bakta/db/ \
-    --prefix KLB3.1 \
+    --prefix {STRAIN} \
     --output 04_ANNOTATION \
     --keep-contig-headers \
     --threads $SLURM_CPUS_PER_TASK \
@@ -419,53 +419,53 @@ Download the assembly fasta file, the maping `.bam` (and `.bam.bai`) files and t
 We can inspect these with IGV. The next steps will be done together. 
 
 
-### Optional - Annotation and visualization of CRISPR-Cas and Phages
+## Annotation and visualization of CRISPR-Cas and Phages (OPTIONAL)
 
-Some genome features are better annotated when considering the genome context of a region involving many genes, instead of looking at only one gene at the time. Two examples of this case are the CRISPR-Cas system and Phages.
+Some genome features are better annotated when considering the genome context of a region involving many genes, instead of looking at only one gene at the time. Two examples of this case are the CRISPR-Cas system and Phages.  
 
+Here we have to examples that are websites where you can upload your assembly.  
 The CRISPR-Cas can be annotated using [CRISPRone](https://omics.informatics.indiana.edu/CRISPRone/denovo.php) and Phages can be annotated using [PHASTER](https://phaster.ca/).
 
 Can you find any differences in the annotation of some specific genes when comparing the results of these tools with the Prokka annotation?
 
+## Taxonomic annotation against GTDB
 
-## Name the strain
+Next thing is to give a name to our strain. In other words, what species did we assemble.  
+We will use a tool called [GTDB-tk](https://github.com/ecogenomics/gtdbtk) to give some taxonomy to our genome.
 
-After we know the completeness and the amount of possible contamination in our assembly, next thing is to give a name to our strain. In other words, what species did we sequence.  
-We will use a tool called GTDB-tk to give some taxonomy to our genomes.
+GTDB-tk uses the GTDB database, which is big, but it has been downloaded and can be found from the `DB` folder under the course project.  
+We justr need to make an environemntal variable pointing to that, so the tool can find it.  
 
-This will use a lot of memory (> 200G), so allocate a new computing node for this.
+We will need more memory than previously, so allocate XX G, 6-12 CPUS and 2 hours.
 
 ```bash
-#############  (THIS HAS BEEN DONE ALREADY)  #########################
-## download gtdb database
-# wget https://data.ace.uq.edu.au/public/gtdb/data/releases/latest/auxillary_files/gtdbtk_data.tar.gz
-# tar -xzf gtdbtk_data.tar.gz
-#############  (THIS HAS BEEN DONE ALREADY)  #########################
+export GTDBTK_DATA_PATH=/scratch/project_2005590/DB/GTDB/release214/
 
-# run gtdbtk
-export GTDBTK_DATA_PATH=/scratch/project_2005590/databases/GTDB/release202/
-
-singularity exec --bind $GTDBTK_DATA_PATH:$GTDBTK_DATA_PATH,$PWD:$PWD,$TMPDIR:/tmp  \
-                    /projappl/project_2005590/containers/gtdbtk_1.7.0.sif \
-                    gtdbtk classify_wf -x fasta --genome_dir PATH/TO/GENOME/FOLDER \
-                    --out_dir OUTPUT/FOLDER --cpus 4 --tmpdir gtdb_test
+ /projappl/project_2005590/tax_tools/bin/gtdbtk gtdbtk classify_wf \
+    -x fasta \
+    --genome_dir 03_ASSEMBLIES \
+    --out_dir 04_ANNOTATION/GTDB \
+    --cpus $SLURM_CPUS_PER_TASK \
+    --tmpdir $LOCAL_SCRATCH
 ```
+
+The output will contain a file with the most likely taxonomic annotation for your genome. We will go thru the output together.  
 
 ## Pangenomics with Anvi'o
 
-We will run the whole anvi'o part interactively. So again, allocate a computing node with enough memory (>40G) and 8 threads.  
+### Reference genomes
 
-Make a new folder for pangenomics
+Before we can do any pangenomics, we need some reference genomes. Go to [NCBI Datasets](https://www.ncbi.nlm.nih.gov/datasets/) and select `Genome`. 
+Then search with the taxonomy you got. Either on species level or on genus level. When you get the list of available reference genomes, filter them to include only the ones that have been annotated by NCBI RefSeq and have assembly level at least chromosome, complete would be better. Then select 2-4 genomes for the pangenomic analysis and write their assembly accessions to a file.  
 
-```bash
-mkdir pangenomics
-cd pangenomics
-```
+### Setup
+
+We will run the whole anvi'o part interactively. So again, allocate a computing node with enough memory (>40G) and 6 threads for 4 hours.  
 
 Make sure you have at least a copy of each of your genomes in one folder and make a new environmental variable pointing there.
+
 ```bash
 GENOME_DIR=ABSOLUTE/PATH/TO/GENOME/DIR
-CONTAINERS=/projappl/project_2005590/containers/
 ```
 
 Then we will polish the contig names for each of the genomes before doing anything with the genomes.  
