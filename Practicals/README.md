@@ -427,7 +427,7 @@ The output will contain a file with the most likely taxonomic annotation for you
 
 Before we can do any pangenomics, we need some reference genomes. Go to [NCBI Datasets](https://www.ncbi.nlm.nih.gov/datasets/) and select `Genome`. 
 Then search with the taxonomy you got. Either on species level or on genus level. When you get the list of available reference genomes, filter them to include only the ones that have been annotated by NCBI RefSeq and have assembly level at least chromosome, complete would be better. Then from `Select colums` tick `RefSeq` to show the accessions.  
-Then select 2-4 genomes for the pangenomic analysis and write their RefSeq accessions to a file (one accession per line) and finally copy the file to your own folder in Puhti under `06_PANGENOMICS` with the name `genome-accessions.txt`.  
+Then select 6-8 genomes for the pangenomic analysis and write their RefSeq accessions to a file (one accession per line) and finally copy the file to your own folder in Puhti under `06_PANGENOMICS` with the name `genome-accessions.txt`.  
 
 ```bash
 cd 06_PANGENOMICS
@@ -436,7 +436,8 @@ unzip ncbi_dataset.zip -d reference_genomes
 ```
 
 ### Setup
-Now we have all of the reference genome Genbank files in the folder `reference_genomes`. We need to process the Genbank files for anvi'o, first create a folder called `01_GENOMES` inside the `06_PANGENOMICS`
+Now we have all of the reference genome Genbank files in the folder `reference_genomes`.  
+We need to process the Genbank files for anvi'o, first create a folder called `01_GENOMES` inside the `06_PANGENOMICS`
 
 ```bash
 mkdir 01_GENOMES
@@ -491,7 +492,7 @@ The `config.json` file can be found from `06_PANGENOMICS` folder and it contains
     "workflow_name": "pangenomics",
     "config_version": "2",
     "max_threads": "6",
-    "project_name": "Pangenome",
+    "project_name": "MBDP-105_pangenome",
     "external_genomes": "external-genomes.txt",
     "fasta_txt": "fasta.txt",
     "anvi_gen_contigs_database": {
@@ -514,56 +515,20 @@ The `config.json` file can be found from `06_PANGENOMICS` folder and it contains
 ```
 And then we're ready to run the whole pangenomics workflow.  
 
-```
+```bash
 anvi-run-workflow -w pangenomics -c config.json
 ```
 
-When the workflow is ready, we can visualise the results interactively in anvi'o.  
-For that we need to connect to Puhti bit differently.  
-Log out from the current computing node, open a screen session and a new interactive connection to computing node.
-Then take note of the computing node name, the login node number and your port number, you'll need them all in the next part.
+When the workflow is ready, we can visualise the results interactively in anvi'o.
 
 ### Tunneling the interactive interafce
-Although you can install anvi'o on your own computer (and you're free to do so, but we won't have time to help in that), we will run anvi'o in Puhti and tunnel the interactive interface to your local computer.
+
 To be able to to do this, everyone needs to use a different port for tunneling and your port number will be given on the course.
 
-Connecting using a tunnel is a bit tricky and involves several steps, so pay special attention.
-Detach from your screen and note on which login node you're on. Then re-attach and note the ID of the computing node your logged in. Then you will also need to remember your port number.
-
-Mini manual for screen:
-
-    screen -S NAME - open a screen and give it a session name NAME
-    screen - open new screen without specifying any name
-    screen -ls - list all open sessions
-    ctrl + a + d - to detach from a session (from inside the screen)
-    screen -r NAME - re-attach to a detached session using the name
-    screen -rD - re-attach to a attached session
-    exit - close the screen and kill all processes running inside the screen (from inside the screen)
-
-
-Then you can log out and log in again, but this time in a bit different way.
-You need to specify your PORT and the NODEID to which you connected and also the NUMBER of the login node you where your screen is running. Also change your username in the command below.
-```
-ssh -L PORT:NODEID.bullx:PORT USERNAME@puhti-loginNUMBER.csc.fi
-```
-And in windows using Putty:
-In SSH tab select "tunnels". Add:
-
-Source port: PORT
-Destination: NODEID.bullx:PORT
-Click add and connect to the right login node, login1 or login2.
-
-Then go back to your screen and launch the interactive interface.
-Remember to change the PORT.
-
-```
 cd 03_PAN
-export ANVIOPORT=PORT
-singularity exec --bind $PWD:$PWD $CONTAINERS/anvio_7.sif \
-                                    anvi-display-pan \
-                                        -g Oscillatoriales_pangenome-GENOMES.db \
-                                        -p Oscillatoriales_pangenome-PAN.db \
-                                        --server-only -P $ANVIOPORT
+ANVIOPORT=YOUR-PORT-NUMBER
+
+anvi-display-pan --server-only -P $ANVIOPORT
 
 singularity exec --bind $PWD:$PWD $CONTAINERS/anvio_7.sif \
                                     anvi-get-sequences-for-gene-clusters \

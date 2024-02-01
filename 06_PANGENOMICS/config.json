@@ -2,7 +2,7 @@
     "workflow_name": "pangenomics",
     "config_version": "2",
     "max_threads": "6",
-    "project_name": "Pangenome",
+    "project_name": "MBDP-105_pangenome",
     "external_genomes": "external-genomes.txt",
     "fasta_txt": "fasta.txt",
     "anvi_gen_contigs_database": {
