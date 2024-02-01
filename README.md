@@ -344,6 +344,16 @@ Then we can calculate the mean coveragre per each contig with [bamtocov](https:/
 python3 src/average-coverage.py 05_MAPPING/WOD100.bam --bin /projappl/project_2005590/bamtocov/bin/bamtocov
 ```
 
+Inspect the output from coverage calculation. What is the average coverage over the whole genome?
+
+### Long-read mapping with minimap2 (OPTIONAL)
+
+```bash
+module load minimap2
+module load samtools
+minimap2 -ax map-ont 03_ASSEMBLIES/KLB3.1_unicycler.fasta 02_TRIMMED_READS/KLB3.1_nanopore.fastq.gz |samtools view -Sb |samtools sort > 05_MAPPING/KLB3.1_nanopore.bam
+```
+
 ## Genome annotation with Bakta
 
 Now we can annotate our genome assembly using [Bakta](https://github.com/oschwengers/bakta). 
@@ -360,6 +370,12 @@ module purge
 ```
 
 Check the files inside the output folder.
+
+## Visualise mapping and annotations with IGV
+
+Download the assembly fasta file, the maping `.bam` (and `.bam.bai`) files and the genome annotation output (`.gff3`) to your own computer.  
+We can inspect these with IGV. The next steps will be done together. 
+
 
 ### Optional - Annotation and visualization of CRISPR-Cas and Phages
 
