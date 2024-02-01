@@ -8,11 +8,13 @@ __Table of Contents:__
 4. [QC and trimming for Nanopore reads](#qc-and-trimming-for-nanopore-reads)
 5. [Genome assembly](#genome-assembly)
 6. [Assembly QC](#assembly-qc)
-7. [Calculate the genome coverage](#calculate-the-genome-coverage)
-8. [Genome completeness and contamination](#genome-completeness-and-contamination)
-9. [Genome annotation with Prokka](#genome-annotation-with-prokka)
-10. [Name the strain](#name-the-strain)
-11. [Pangenomics](#pangenomics-with-anvio)
+7. [Assembly graphs](#assembly-graphs)
+8. [Polishing the nanopore assembly](#polishing-the-nanopore-assembly-optional)
+7. [Genome completeness and contamination](#genome-completeness-and-contamination)
+8. [Mapping reads and calculating genome coverage](#mapping-reads-to-the-assembly-and-calculating-the-genome-coverage)
+9. [Genome annotation with Bakta](#genome-annotation-with-bakta)
+10. [Taxonomic annotation against GTDB](#taxonomic-annotation-against-gtdb)
+11. [Pangenomics with anvi'o](#pangenomics-with-anvio)
 12. [Detection  of secondary  metabolites biosynthesis gene clusters](#detection-of-secondary-metabolites-biosynthesis-gene-clusters)
 13. [Comparison of secondary metabolites biosynthesis gene clusters](#comparison-of-secondary-metabolites-biosynthesis-gene-clusters)
 
@@ -311,7 +313,7 @@ Then run CheckM2 with the following command.
 
 Hopefully now we have come to some conclusion about what is the best assembly and from now on we will continue with only one. 
 
-## Mapping reads to the assembly and calculating the genome coverage (OPTIONAL)
+## Mapping reads to the assembly and calculating the genome coverage
 
 To calculate the genome coverage, all the reads used for the assembly must be mapped to the final genome. As an example we will only map the short reads against the genome.  
 For that, we use three programs: Bowtie2 to map the reads; Samtools to sort and make an index of the mapped reads; and bedtools to make the calculation. For long reads the process woul dbe the same, except you would need to use some othere mapping software (e.g. minimap2). 
@@ -410,7 +412,7 @@ export GTDBTK_DATA_PATH=/scratch/project_2005590/DB/GTDB/release214/
 
 The output will contain a file with the most likely taxonomic annotation for your genome. We will go thru the output together.  
 
-## Pangenomics with Anvi'o
+## Pangenomics with anvi'o
 
 ### Reference genomes
 
