@@ -483,48 +483,15 @@ do
 done >> fasta.txt
 ```
 
-
-
-
-```bash
-module load biokit
-for strain in $(ls *.fasta); do prokka --cpus 8 --outdir ./${strain%.fasta}_PROKKA --prefix ${strain%.fasta} $strain; done
-```
-
-Now we have both Genbank files from the reference genomes and also from our own genomes.  
-Next things is to get the contigs, gene calls and annotations to separate files that anvi'o understands.
-
-```bash
-for genome in $(ls */*.gbf)
-do
-    singularity exec --bind $PWD:$PWD $CONTAINERS/anvio_7.sif \
-                                        anvi-script-process-genbank \
-                                            -i $genome -O ${genome%.gbf} \
-                                            --annotation-source prodigal \
-                                            --annotation-version v2.6.3
-done
-```
-
-The pangenomcis part will be done using a anvi'o workflow (read more from here: )  
-And for that we need a file that specifies where the files from previous step are (called `fasta.txt`).  
-
-```bash
-echo -e "name\tpath\texternal_gene_calls\tgene_functional_annotation" > fasta.txt
-for strain in $(ls */*-contigs.fa)
-do
-    strain_name=${strain#*/}
-    echo -e ${strain_name%-contigs.fa}"\t"$strain"\t"${strain%-contigs.fa}"-external-gene-calls.txt\t"${strain%-contigs.fa}"-external-functions.txt"
-done >> fasta.txt
-```
 In addition to the `fasta.txt` file we need also a configuration file.  
-So make a file called `config.json` containing the following.  
+The `config.json` file can be found from `06_PANGENOMICS` folder and it contains the following.  
 
 ```bash
 {
     "workflow_name": "pangenomics",
     "config_version": "2",
-    "max_threads": "8",
-    "project_name": "Oscillatoriales_pangenome",
+    "max_threads": "6",
+    "project_name": "Pangenome",
     "external_genomes": "external-genomes.txt",
     "fasta_txt": "fasta.txt",
     "anvi_gen_contigs_database": {
@@ -541,14 +508,14 @@ So make a file called `config.json` containing the following.
         "threads": ""
     },
     "anvi_pan_genome": {
-      "threads": "8"
+      "threads": "6"
     }
 }
 ```
 And then we're ready to run the whole pangenomics workflow.  
 
 ```
-singularity exec --bind $PWD:$PWD $CONTAINERS/anvio_7.sif anvi-run-workflow -w pangenomics -c config.json
+anvi-run-workflow -w pangenomics -c config.json
 ```
 
 When the workflow is ready, we can visualise the results interactively in anvi'o.  
