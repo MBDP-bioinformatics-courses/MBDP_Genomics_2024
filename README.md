@@ -4,20 +4,16 @@ Microbial community structure, diversity, and population structure are fundament
 
 Everything is possible thanks to the support of CSC.
 
-## Before the course
-
-Follow the instructions in [here](Practicals/installations.md). 
-
 ## Schedule
 
-The course will be on Monday 5th of February, Wednesday 7th of February and Friday 9th of Fembruary in the City Centre Campus.
+The course will be on Monday 5th of February, Wednesday 7th of February and Friday 9th of February in the City Centre Campus.
 
 __Class rooms:__
 | Day | Time | Building | Room |  
 | --- | --- | --- | --- |  
-| Monday    | 10-16   | :office: Porthania                 | __P724__   |
-| Wednesday | 10-16   | :classical_building: Main Building | __U4079__  | 
-| Friday    | 10-16   | :classical_building: Main Building | __U3039__  |
+| Monday 5.2.   | 10-16   | :classical_building: Main Building | __U3041__  |
+| Wednesday 7.2.| 10-16   | :classical_building: Main Building | __U3043__  | 
+| Friday 9.2.   | 10-16   | :classical_building: Main Building | __U3043__  |
 
 ## Target group
 This course is targeted at PhD and MSc students who are interested in performing bacterial genomic analyses
@@ -35,8 +31,6 @@ Eduroam or Helsinki UniGuest networks are available
 ## Organizers and teachers
 :woman_technologist: Docent Jenni Hultman, LUKE 
 :man_technologist: University lecturer Antti Karkman, University of Helsinki  
-
-## Feedback
 
 # Practicals
 
