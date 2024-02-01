@@ -17,7 +17,9 @@ __Class rooms:__
 
 __[Detailed schedule](Schedule.md)__  
 
-__[Practicals](Practicals/README.md)__
+## Practicals
+
+Course practical part can be found from here: __[Practicals](Practicals/README.md)__
 
 
 ## Target group
