@@ -1,13 +1,12 @@
 # Schedule
 
-## Monday - EE-building, Walter-sali
+## Monday - Main Building, U3041
 | Time | Description|
 | --- | --- |
 | 10:00-10:30 | **Jenni Hultman**: [Introduction (including general structure of the course and group work)](Lectures/introduction.pdf)|
 | 10:30-10:45 | **Antti Karkman**: [Basic usage of computing service at CSC](Lectures/CSC_basics.pdf) |
 | 10:45-11:15 | **Antti Karkman**: [Working with the command line - hands-on](Practicals/commandline.md) |
 | 11.15-11:30 | **Antti Karkman**: [Setting up the course folder](Practicals/README.md#setting-up-the-course-folders) |
-| 11:30-12:00 | **David Fewer**: [Introduction to the Cyanobacterial genomes analyzed during the course](Lectures/DavidFewer_cyanobacteria.pdf)|
 | 12:00-13:00 | **Lunch** |
 | 13:00-13:15 | **Antti Karkman**: [Sequencing 101](Lectures/Sequencing101.pdf) |
 | 13:15-13:30 | **Jenni Hultman**: [Seq trimming and QC lecture](Lectures/QC_filtering.pdf) |
@@ -16,7 +15,7 @@
 | 14:45-15:30 | **Endrews Delbaje**: [Assembly hands-on](Practicals/README.md#Genome-assembly-with-Spades) |
 | 15:30-16:00 | **Students**: Student presentations|
 
-## Tuesday - EE-building, Walter-sali
+## Wednesday - Main Building, U3043
 | Time | Description |
 | --- | --- |
 | 08:30-09:00 | **Tania Shishido Joutsen**: [Assembly QC lecture](Lectures/lecture_assemblyQC.pdf)|
@@ -28,7 +27,7 @@
 | 13:00-16:00 | **Endrews Delbaje**:KBase tutorial and hands-on|
 
 
-## Wednesday - EE-building, sh 11+12
+## Friday - Main Building, U3043
 | Time | Description |
 | --- | --- |
 | 08:30-09:15 | **Antti Karkman**: [Introduction to Anvi'o](Lectures/Pangenomics.pdf)|
