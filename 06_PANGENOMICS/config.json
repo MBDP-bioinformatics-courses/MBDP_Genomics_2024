@@ -1,0 +1,24 @@
+{
+    "workflow_name": "pangenomics",
+    "config_version": "2",
+    "max_threads": "6",
+    "project_name": "Pangenome",
+    "external_genomes": "external-genomes.txt",
+    "fasta_txt": "fasta.txt",
+    "anvi_gen_contigs_database": {
+        "--project-name": "{group}",
+        "--description": "",
+        "--skip-gene-calling": "",
+        "--ignore-internal-stop-codons": true,
+        "--skip-mindful-splitting": "",
+        "--contigs-fasta": "",
+        "--split-length": "",
+        "--kmer-size": "",
+        "--skip-predict-frame": "",
+        "--prodigal-translation-table": "",
+        "threads": ""
+    },
+    "anvi_pan_genome": {
+      "threads": "6"
+    }
+}

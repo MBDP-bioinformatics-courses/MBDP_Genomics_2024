@@ -244,21 +244,28 @@ Normal is the default, but you can change it if you feel bold or conservative to
 
 ```bash
  /projappl/project_2005590/unicycler/bin/unicycler \
-    -l 02_TRIMMED_READS/WOD100_nanopore.fastq.gz \
-    -1 02_TRIMMED_READS/WOD100_1.fastq.gz \
-    -2 02_TRIMMED_READS/WOD100_2.fastq.gz \
+    -l 02_TRIMMED_READS/{STRAIN}_nanopore.fastq.gz \
+    -1 02_TRIMMED_READS/{STRAIN}_1.fastq.gz \
+    -2 02_TRIMMED_READS/{STRAIN}_2.fastq.gz \
     --keep 0 \
     --mode normal \
-    --out 03_ASSEMBLIES/WOD100_unicycler \
-    --threads $SLURM_CPUS_PER_TASK
+    --threads $SLURM_CPUS_PER_TASK \
+    --out 03_ASSEMBLIES/unicycler
+```
+
+Unicyler names the contigs with just numbers and this can create problems with some tools. So we need to rename them by adding "contig_" before the number.  
+
+```bash
+seqkit replace -p ^ -r contig_$1 03_ASSEMBLIES/unicycler/assembly.fasta > 03_ASSEMBLIES/unicycler/renamed_assembly.fasta
 ```
 
 After you're done, remember to close the interactive connection and free the resources with `exit`.  
+
 And to make things a bit easier for some of the next steps, copy each of the assembly files to the `03_ASSEMBLIES` folder.  
 There's one example, but do it for each of the three assemblies. And remember to nme them so that you know which is which.  
 
 ```bash
-cp 03_ASSEMBLIES/KLB_flye/assembly.fasta 03_ASSEMBLY/flye_assembly.fasta
+cp 03_ASSEMBLIES/unicycler/renamed_assembly.fasta 03_ASSEMBLY/unicycler_assembly.fasta
 ```
 
 ## Assembly graphs
@@ -355,6 +362,7 @@ An example how to map the long-reads to the assembly using [minimap2](https://gi
 module load minimap2
 module load samtools
 minimap2 -ax map-ont path-to/your-assembly.fasta path-to/trimmed-nanopore.fastq,gz |samtools view -Sb |samtools sort > 05_MAPPING/{STRAIN}_nanopore.bam
+samtools index 05_MAPPING/{STRAIN}_nanopore.bam
 ```
 
 ## Genome annotation with Bakta
@@ -402,10 +410,11 @@ We will need more memory than previously, so allocate XX G, 6-12 CPUS and 2 hour
 ```bash
 export GTDBTK_DATA_PATH=/scratch/project_2005590/DB/GTDB/release214/
 
- /projappl/project_2005590/tax_tools/bin/gtdbtk gtdbtk classify_wf \
+ /projappl/project_2005590/tax_tools/bin/gtdbtk classify_wf \
     -x fasta \
     --genome_dir 03_ASSEMBLIES \
     --out_dir 04_ANNOTATION/GTDB \
+    --skip_ani_screen \
     --cpus $SLURM_CPUS_PER_TASK \
     --tmpdir $LOCAL_SCRATCH
 ```
@@ -417,40 +426,65 @@ The output will contain a file with the most likely taxonomic annotation for you
 ### Reference genomes
 
 Before we can do any pangenomics, we need some reference genomes. Go to [NCBI Datasets](https://www.ncbi.nlm.nih.gov/datasets/) and select `Genome`. 
-Then search with the taxonomy you got. Either on species level or on genus level. When you get the list of available reference genomes, filter them to include only the ones that have been annotated by NCBI RefSeq and have assembly level at least chromosome, complete would be better. Then select 2-4 genomes for the pangenomic analysis and write their assembly accessions to a file.  
+Then search with the taxonomy you got. Either on species level or on genus level. When you get the list of available reference genomes, filter them to include only the ones that have been annotated by NCBI RefSeq and have assembly level at least chromosome, complete would be better. Then from `Select colums` tick `RefSeq` to show the accessions.  
+Then select 2-4 genomes for the pangenomic analysis and write their RefSeq accessions to a file (one accession per line) and finally copy the file to your own folder in Puhti under `06_PANGENOMICS` with the name `genome-accessions.txt`.  
+
+```bash
+cd 06_PANGENOMICS
+/projappl/project_2005590/ncbi_datasets/bin/datasets download genome accession --inputfile genome-accessions.txt --include gbff
+unzip ncbi_dataset.zip -d reference_genomes
+```
 
 ### Setup
-
-We will run the whole anvi'o part interactively. So again, allocate a computing node with enough memory (>40G) and 6 threads for 4 hours.  
-
-Make sure you have at least a copy of each of your genomes in one folder and make a new environmental variable pointing there.
+Now we have all of the reference genome Genbank files in the folder `reference_genomes`. We need to process the Genbank files for anvi'o, first create a folder called `01_GENOMES` inside the `06_PANGENOMICS`
 
 ```bash
-GENOME_DIR=ABSOLUTE/PATH/TO/GENOME/DIR
+mkdir 01_GENOMES
 ```
-
-Then we will polish the contig names for each of the genomes before doing anything with the genomes.  
-And also copy few annotated reference genomes to be included in our pangenome.  
 
 ```bash
-singularity exec --bind $PWD:$PWD,$GENOME_DIR:/genomes $CONTAINERS/anvio_7.sif \
-          anvi-script-reformat-fasta --simplify-names -o Oscillatoriales_193.fasta \
-          -r reformat_193_report.txt /genomes/GENOME1.fasta
+module load anvio/7.1
 
-singularity exec --bind $PWD:$PWD,$GENOME_DIR:/genomes $CONTAINERS/anvio_7.sif \
-          anvi-script-reformat-fasta --simplify-names -o Oscillatoriales_327_2.fasta \
-          -r reformat_327_2_report.txt /genomes/GENOME2.fasta
-
-singularity exec --bind $PWD:$PWD,$GENOME_DIR:/genomes $CONTAINERS/anvio_7.sif \
-          anvi-script-reformat-fasta --simplify-names -o Oscillatoriales_328.fasta \
-          -r reformat_328_report.txt /genomes/GENOME3.fasta
-
-# copy reference genomes to your own folder
-mkdir reference_genomes
-cp /scratch/project_2005590/COURSE_FILES/closest_oscillatoriales_genomes/*.gbf ./reference_genomes
+for genome in `ls reference_genomes/ncbi_dataset/data/*/genomic.gbff`;do 
+      name=${genome#reference_genomes/ncbi_dataset/data/}
+      name=${name%/genomic.gbff}
+      anvi-script-process-genbank \
+        -i $genome \
+        --output-fasta 01_GENOMES/${name}-contigs.fasta \
+        --output-gene-calls 01_GENOMES/${name}-gene-calls.txt \
+        --output-functions 01_GENOMES/${name}-functions.txt \
+        --annotation-source prodigal \
+        --annotation-version 0.0
+done
 ```
 
-Although you already annotated your genomes, we'll do it once more, because we changed the names of the contigs.
+Then process also your own genome. 
+
+```bash
+STRAIN= # write here your strain name, STRAIN=WOD100 or STRAIN=KLB3.1
+
+anvi-script-process-genbank \
+    --output-fasta 01_GENOMES/${STRAIN}-contigs.fasta \
+    --output-gene-calls 01_GENOMES/${STRAIN}-gene-calls.txt \
+    --output-functions 01_GENOMES/${STRAIN}-functions.txt \
+    --annotation-source prodigal \
+    --annotation-version 0.0 \
+    -i path-to/bakta-annotation.gbff
+```
+
+Then we need to make a text file pointing to each of the different files. 
+
+```bash
+echo -e "name\tpath\texternal_gene_calls\tgene_functional_annotation" > fasta.txt
+for strain in `ls 01_GENOMES/*-contigs.fasta`
+do
+    strain_name=${strain#01_GENOMES/}
+    echo -e ${strain_name%-contigs.fasta}"\t"$strain"\t"${strain%-contigs.fasta}"-gene-calls.txt\t"${strain%-contigs.fasta}"-functions.txt"
+done >> fasta.txt
+```
+
+
+
 
 ```bash
 module load biokit
