@@ -15,6 +15,9 @@ __Class rooms:__
 | Wednesday 7.2.| 10-16   | :classical_building: Main Building | __U3043__  | 
 | Friday 9.2.   | 10-16   | :classical_building: Main Building | __U3043__  |
 
+Link to __[Practicals]__(Practicals/README.md)
+
+
 ## Target group
 This course is targeted at PhD and MSc students who are interested in performing bacterial genomic analyses
 
@@ -48,8 +51,6 @@ __Table of Contents:__
 11. [Pangenomics](#pangenomics-with-anvio)
 12. [Detection  of secondary  metabolites biosynthesis gene clusters](#detection-of-secondary-metabolites-biosynthesis-gene-clusters)
 13. [Comparison of secondary metabolites biosynthesis gene clusters](#comparison-of-secondary-metabolites-biosynthesis-gene-clusters)
-
-
 
 ## Setting up the course folders
 The main course directory is located in `/scratch/project_2005590`.  
