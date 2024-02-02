@@ -12,17 +12,16 @@
 | 13:15-13:30 | **Jenni Hultman**: [Seq trimming and QC lecture](Lectures/QC_filtering.pdf) |
 | 13:30-14:30 | **ALL**: Hands-on [QC and trimming](Practicals/README.md#qc-and-trimming-for-illumina-reads) and MBDP coffee break at 14:00 |
 | 14:30-14:45 | **Jenni Hultman**: Assembly lecture |
-| 14:45-15:30 | **Endrews Delbaje**: [Assembly hands-on](Practicals/README.md#Genome-assembly-with-Spades) |
-| 15:30-16:00 | **Students**: Student presentations|
+| 14:45-16:00 | **ALL**: [Assembly hands-on](Practicals/README.md#Genome-assembly-with-Spades) |
+
 
 ## Wednesday - Main Building, U3043
 | Time | Description |
 | --- | --- |
-| 08:30-09:00 | **Tania Shishido Joutsen**: [Assembly QC lecture](Lectures/lecture_assemblyQC.pdf)|
-| 09:00-09:30 | **Endrews Delbaje**: [Cleaning the genome](Practicals/README.md#Eliminate-contaminant-contigs-with-Kaiju)|
-| 09:30-10:00 | **Endrews Delbaje**: [Assembly QC hands-on](Practicals/README.md#Assembly_QC)|
-| 10:00-10:30 | **Endrews Delbaje**: [Annotation lecture](Lectures/Genome_Annotation.pdf)|
-| 10:30-12:00 | **Endrews Delbaje**: Annotation hands-on|
+| 08:30-09:00 | **Antti Karkman**: [Assembly QC lecture](Lectures/lecture_assemblyQC.pdf)|
+| 09:00-09:30 | **ALL**: [Assembly QC hands-on](Practicals/README.md#Assembly_QC)|
+| 09:30-10:00 | **Antti Karkman/Jenni Hultman**: [Annotation lecture](Lectures/Genome_Annotation.pdf)|
+| 10:00-12:00 | **ALL**: Annotation hands-on|
 | 12:00-13:00 | **Lunch** |
 | 13:00-16:00 | **Endrews Delbaje**:KBase tutorial and hands-on|
 
@@ -34,23 +33,8 @@
 | 09:15-12:00 | **ALL**: [Pangenomics hands-on](Practicals/README.md#pangenomics-with-anvi'o) |
 | 12:00-13:00 | **Lunch**: |
 | 13:00-15:00 | **ALL**: Population genomics hands-on cont' and MBDP coffee break at 14:00|
-| 15:00-16:00 | **Time for groupwork** |
+| 15:00-16:00 | **Q&A** & **Feedback**|
 
 
-## Thursday - EE-building, Walter-sali
-| Time | Description |
-| --- | --- |
-| 08:30-10:00 | **Time for groupwork** |
-| 10:00-10:30 | **David Fewer**: Secondary metabolite lecture|
-| 10:30-12:00 | **Tania Shishido Joutsen**: Secondary metabolite hands-on:  [antiSMASH](Practicals/README.md#Detection-of-secondary-metabolites-biosynthesis-gene-clusters) and  [BiG-SCAPE/CORASON](Practicals/README.md#Comparison-of-secondary-metabolites-biosynthesis-gene-clusters)|
-| 12:00-13:00 | **Lunch** |
-| 13:00-14:30 | **Tania Shishido Joutsen** Secondary metabolite hands-on: [BiG-SCAPE/CORASON](Practicals/README.md#Comparison-of-secondary-metabolites-biosynthesis-gene-clusters) |
-| 14:30-16:00 | **Time for groupwork** |
 
 
-## Friday - EE-building, Walter-sali
-| Time | Description |
-| --- | --- |
-| 08:30-12:00 | **ALL**: Groupwork presentations|
-| 12:00-13:00 | **Lunch** |
-| 13:00-15:30 | **Q&A** & **Feedback** and MBDP coffee break at 14:00|
