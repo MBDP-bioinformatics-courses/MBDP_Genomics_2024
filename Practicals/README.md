@@ -248,6 +248,7 @@ Normal is the default, but you can change it if you feel bold or conservative to
     -1 02_TRIMMED_READS/{STRAIN}_1.fastq.gz \
     -2 02_TRIMMED_READS/{STRAIN}_2.fastq.gz \
     --keep 0 \
+    --min_fasta_length 1000 \
     --mode normal \
     --threads $SLURM_CPUS_PER_TASK \
     --out 03_ASSEMBLIES/unicycler
