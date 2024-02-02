@@ -397,6 +397,18 @@ The CRISPR-Cas can be annotated using [CRISPRone](https://omics.informatics.indi
 
 Can you find any differences in the annotation of some specific genes when comparing the results of these tools with the Prokka annotation?
 
+## Detection of secondary metabolites biosynthesis gene clusters (OPTIONAL)
+
+Biosynthetic genes putatively involved in the synthesis of secondary metabolites can identified using `antiSMASH`
+
+Got to `https://antismash.secondarymetabolites.org/#!/start`. You can load the assembled genome you obtained and turn on all the extra features.
+
+When the analysis is ready, you may be able to answer the following questions:
+
+1. How many secondary metabolites biosynthetic gene clusters (BGC) were detected?
+2. Which different types of BGC were detected and what is the difference among these types?
+3. Do you think your strain produce all these metabolites? Why?
+
 ## Taxonomic annotation against GTDB
 
 Next thing is to give a name to our strain. In other words, what species did we assemble.  
@@ -427,11 +439,11 @@ The output will contain a file with the most likely taxonomic annotation for you
 
 Before we can do any pangenomics, we need some reference genomes. Go to [NCBI Datasets](https://www.ncbi.nlm.nih.gov/datasets/) and select `Genome`. 
 Then search with the taxonomy you got. Either on species level or on genus level. When you get the list of available reference genomes, filter them to include only the ones that have been annotated by NCBI RefSeq and have assembly level at least chromosome, complete would be better. Then from `Select colums` tick `RefSeq` to show the accessions.  
-Then select 6-8 genomes for the pangenomic analysis and write their RefSeq accessions to a file (one accession per line) and finally copy the file to your own folder in Puhti under `06_PANGENOMICS` with the name `genome-accessions.txt`.  
+Then select 4-8 (WOD100: 4-6; KLB3.1: 6-8) genomes for the pangenomic analysis and write their RefSeq accessions to a file (one accession per line) and finally copy the file to your own folder in Puhti under `06_PANGENOMICS` with the name `genome-accessions.txt`.  
 
 ```bash
 cd 06_PANGENOMICS
-/projappl/project_2005590/ncbi_datasets/bin/datasets download genome accession --inputfile genome-accessions.txt --include gbff
+ /projappl/project_2005590/ncbi_datasets/bin/datasets download genome accession --inputfile genome-accessions.txt --include gbff
 unzip ncbi_dataset.zip -d reference_genomes
 ```
 
@@ -444,7 +456,7 @@ mkdir 01_GENOMES
 ```
 
 ```bash
-module load anvio/7.1
+module load anvio
 
 for genome in `ls reference_genomes/ncbi_dataset/data/*/genomic.gbff`;do 
       name=${genome#reference_genomes/ncbi_dataset/data/}
@@ -509,7 +521,9 @@ The `config.json` file can be found from `06_PANGENOMICS` folder and it contains
         "threads": ""
     },
     "anvi_pan_genome": {
-      "threads": "6"
+        "threads": "6",
+        "--use-ncbi-blast": true,
+        "--mcl-inflation":"10"
     }
 }
 ```
@@ -521,125 +535,30 @@ anvi-run-workflow -w pangenomics -c config.json
 
 When the workflow is ready, we can visualise the results interactively in anvi'o.
 
-### Tunneling the interactive interafce
+### Visualize the pangenome
 
-To be able to to do this, everyone needs to use a different port for tunneling and your port number will be given on the course.
+When the pangenome workflow has finished we can visualise the pangenome with anvi'o. We will run the script on Puhti and port the visualisation to our own computer with VS Code. So there's no need for a local anvi'o installation or file transfer. We'll go thru the steps together.  
+Everyone needs to use a different port for tunneling and your port number will be given on the course. 
 
+```bash
 cd 03_PAN
 ANVIOPORT=YOUR-PORT-NUMBER
 
 anvi-display-pan --server-only -P $ANVIOPORT
-
-singularity exec --bind $PWD:$PWD $CONTAINERS/anvio_7.sif \
-                                    anvi-get-sequences-for-gene-clusters \
-                                        -p Oscillatoriales_pangenome-PAN.db \
-                                        -g Oscillatoriales_pangenome-GENOMES.db \
-                                        -C default -b SCG \
-                                        --concatenate-gene-clusters \
-                                        -o single-copy-core-genes.fa                               
-
-singularity exec --bind $PWD:$PWD $CONTAINERS/anvio_7.sif \
-                                    anvi-gen-phylogenomic-tree \
-                                        -f single-copy-core-genes.fa  \
-                                        -o SCG.tre
-
-# study the geosmin phylogeny
-singularity exec --bind $PWD:$PWD $CONTAINERS/anvio_7.sif \
-                                    anvi-get-sequences-for-gene-clusters \
-                                    -p Oscillatoriales_pangenome-PAN.db \
-                                    -g Oscillatoriales_pangenome-GENOMES.db \
-                                    --report-DNA-sequences \
-                                    -C default -b Geosmin -o geosmin.fasta
-
-# This time you need  to align the sequences (use  mafft) and construct the tree from  the aligned sequence file (raxml)
-# concatenate the header before alignment
-sed -i 's/[|:]/_/g' geosmin.fasta
-
-module load biokit
-ginsi geosmin.fasta > geosmin_aln.fasta
-
-module purge
-module load raxml
-raxmlHPC -f a -x 12345 -p 12345 -# 100 -m GTRGAMMA -s geosmin_aln.fasta -n geosmin
 ```
 
-## Detection of secondary metabolites biosynthesis gene clusters
-
-Biosynthetic genes putatively involved in the synthesis of secondary metabolites can identified using `antiSMASH`
-
-Got to `https://antismash.secondarymetabolites.org/#!/start`. You can load the assembled genome you obtained and turn on all the extra features.
-
-When the analysis is ready, you may be able to answer the following questions:
-
-1. How many secondary metabolites biosynthetic gene clusters (BGC) were detected?
-2. Which different types of BGC were detected and what is the difference among these types?
-3. Do you think your strain produce all these metabolites? Why?
-
-
-## Comparison of secondary metabolites biosynthesis gene clusters
-
-Biosynthetic genes clusters can be compared using `BiG-SCAPE` (Biosynthetic Gene Similarity Clustering and Prospecting Engine) and `CORASON` (CORe Analysis of Syntenic Orthologs to prioritize Natural Product-Biosynthetic Gene Cluster)  https://bigscape-corason.secondarymetabolites.org/tutorial/index.html
-
-
-You can run BiG-SCAPE/CORASON in your folder, using the results obtained from antiSMASH. The .gbk files from the three studied strains and selected reference strains from NCBI are available here: `/scratch/project_2005590/COURSE_FILES/BIGSCAPE/combinedGBK`
-
-You need to load bigscape using a Conda environment:
+We can also export the single-copy core genes and draw a phylogenetic tree based on those. 
 
 ```bash
-export PROJAPPL=/projappl/project_2005590
-module load bioconda/3
-source activate bigscape
-```
+anvi-get-sequences-for-gene-clusters \
+    -p MBDP-105_pangenome-PAN.db \
+    -g MBDP-105_pangenome-GENOMES.db \
+    -C default -b SCG \
+    --concatenate-gene-clusters \
+    -o single-copy-core-genes.fa                               
 
 
-```bash
-sinteractive -A project_2005590
-```
-
-Now you can run BiG-SCAPE/CORASON in your user folder:
-
-```bash
-mkdir bigscape
-cd bigscape/
-
-python /scratch/project_2005590/COURSE_FILES/BIGSCAPE/BiG-SCAPE/bigscape.py -c 4 -i /scratch/project_2005590/COURSE_FILES/BIGSCAPE/combinedGBK --pfam_dir /scratch/project_2005590/COURSE_FILES/BIGSCAPE/Pfam_database -o bigscape_auto --anchorfile /scratch/project_2005590/COURSE_FILES/BIGSCAPE/anchor_domains.txt --mode auto --hybrids-off --mibig --cutoffs 0.40 0.50 0.60
-```
-
-Take a look what it means each parameter used: https://git.wageningenur.nl/medema-group/BiG-SCAPE/-/wikis/home
-
-Once the run is finished, you may transfer the folder to your own computer and observe the results.
-
-Can you find the geosmin and/or 2-methylisoborneol biosynthetic gene clusters?
-
-
-
-
-## Sandbox
-Place to store some scratch code while testing.
-
-### checkM
-checkM should work from singularity container. Need to pull the right container (tag: 1.1.3--py_0) to course folder and test it once again
-```
-# needs computing node, otherwise runs out of memory (40G)
-singularity exec --bind checkM_test/:/checkM_test /projappl/project_2005590/containers/checkM_1.1.3.sif \
-              checkm lineage_wf -x fasta /checkM_test /checkM_test -t 4 --tmpdir /checkM_test
-```
-### GTDB-tk
-Download database before running, needs >200G
-```
-# download gtdb database
-wget https://data.ace.uq.edu.au/public/gtdb/data/releases/latest/auxillary_files/gtdbtk_data.tar.gz
-tar -xzf gtdbtk_data.tar.gz
-
-# run gtdbtk
-export GTDBTK_DATA_PATH=/scratch/project_2005590 /databases/GTDB/release202/
-singularity exec --bind $GTDBTK_DATA_PATH:$GTDBTK_DATA_PATH,$PWD:$PWD  /projappl/project_2005590/containers/gtdbtk_1.7.0.sif \
-              gtdbtk classify_wf -x fasta --genome_dir checkM_test/ --out_dir gtdb_test --cpus 4  --tmpdir gtdb_test
-```
-
-### basecalling
-```
-
-~/projappl/ont-guppy/bin/guppy_basecaller -i fast5_pass/ -s BASECALLED/ -c ~/projappl/ont-guppy/data/dna_r9.4.1_450bps_hac.cfg --device auto --min_qscore 10
-cat BASECALLED/pass/*.fastq |gzip > BASECALLED/strain_328_nanopore.fastq.gz
+anvi-gen-phylogenomic-tree \
+    -f single-copy-core-genes.fa  \
+    -o SCG.tre
 ```
