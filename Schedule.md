@@ -23,7 +23,7 @@
 | 09:30-10:00 | **Antti Karkman/Jenni Hultman**: [Annotation lecture](Lectures/Genome_Annotation.pdf)|
 | 10:00-12:00 | **ALL**: Annotation hands-on|
 | 12:00-13:00 | **Lunch** |
-| 13:00-16:00 | **Endrews Delbaje**:KBase tutorial and hands-on|
+| 13:00-16:00 | **Jenni Hultman**:KBase tutorial and hands-on|
 
 
 ## Friday - Main Building, U3043
