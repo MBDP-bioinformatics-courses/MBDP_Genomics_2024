@@ -1,3 +1,5 @@
+# MBDP Genomics Course 2024 (MBDP-105)
+
 ## General introduction
 
 Microbial community structure, diversity, and population structure are fundamental aspects to understand evolution, niche adaptation and demographic history of bacterial species. As high-throughput sequencing has become cost effective and accessible, sequencing populations of bacteria across the whole metagenome provides unprecedented resolution to investigate within-host evolution, transmission history and population structure. Moreover, analysis of genetic content of microbial communities through metagenomics has become the mainstream methodology. During this one-week course you will learn and apply bioinformatic techniques to perform population genetics and study microbial communities with metagenomic approaches. The goal is to become familiar with the bioinformatic analysis tools and to be able to utilize them in your own research after the course.
@@ -21,11 +23,12 @@ __[Detailed schedule](Schedule.md)__
 
 Course practical part can be found from here: __[Practicals](Practicals/README.md)__
 
-
 ## Target group
+
 This course is targeted at PhD and MSc students who are interested in performing bacterial genomic analyses
 
 ## Learning outcomes
+
 * Foundational skills to work with metagenomic data
 * Familiarity and practice with bioinformatics tools
 * Perspective and confidence to apply these skills in your own work
@@ -36,5 +39,6 @@ This course is targeted at PhD and MSc students who are interested in performing
 Eduroam or Helsinki UniGuest networks are available
 
 ## Organizers and teachers
-:woman_technologist: Docent Jenni Hultman, LUKE 
-:man_technologist: University lecturer Antti Karkman, University of Helsinki  
+
+:woman_technologist: Docent Jenni Hultman, LUKE  
+:man_technologist: University lecturer Antti Karkman, University of Helsinki
