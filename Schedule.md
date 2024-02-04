@@ -1,6 +1,7 @@
 # Schedule
 
 ## Monday - Main Building, U3041
+
 | Time | Description|
 | --- | --- |
 | 10:00-10:30 | **Jenni Hultman**: [Introduction (including general structure of the course and group work)](Lectures/introduction.pdf)|
@@ -14,8 +15,14 @@
 | 14:30-14:45 | **Jenni Hultman**: Assembly lecture |
 | 14:45-16:00 | **ALL**: [Assembly hands-on](Practicals/README.md#Genome-assembly-with-Spades) |
 
+## Tuesday
+
+| Time | Description |
+| --- | --- |
+| All-day | Reading: [Assembling the perfect bacterial genome using Oxford Nanopore and Illumina sequencing](Lectures/journal.pcbi.1010905.pdf)|
 
 ## Wednesday - Main Building, U3043
+
 | Time | Description |
 | --- | --- |
 | 08:30-09:00 | **Antti Karkman**: [Assembly QC lecture](Lectures/lecture_assemblyQC.pdf)|
@@ -25,8 +32,15 @@
 | 12:00-13:00 | **Lunch** |
 | 13:00-16:00 | **Jenni Hultman**:KBase tutorial and hands-on|
 
+## Thursday
+
+| Time | Description |
+| --- | --- |
+| All-day | Reading: [TBA](Lectures/)|
+
 
 ## Friday - Main Building, U3043
+
 | Time | Description |
 | --- | --- |
 | 08:30-09:15 | **Antti Karkman**: [Introduction to Anvi'o](Lectures/Pangenomics.pdf)|
