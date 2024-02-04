@@ -229,7 +229,7 @@ sinteractive --account --time --mem --cores
 ### Nanopore only assembly with FLye
 
 ```bash
-/projappl/project_2005590/flye/bin/flye --nano-hq 02_TRIMMED_READS/WOD100_nanopore.fastq.gz --out-dir 03_ASSEMBLIES/flye --threads $SLURM_CPUS_PER_TASK
+/projappl/project_2005590/flye/bin/flye --nano-hq 02_TRIMMED_READS/{STRAIN}_nanopore.fastq.gz --out-dir 03_ASSEMBLIES/flye --threads $SLURM_CPUS_PER_TASK
  ```
 
 ### Illumina only assembly with spades
@@ -237,7 +237,7 @@ sinteractive --account --time --mem --cores
 ```bash
 module purge
 module load spades/3.15.0
-spades.py -1 02_TRIMMED_READS/WOD100_1.fastq.gz -2 02_TRIMMED_READS/WOD100_2.fastq.gz -o 03_ASSEMBLIES/spades -t $SLURM_CPUS_PER_TASK --isolate
+spades.py -1 02_TRIMMED_READS/{STRAIN}_1.fastq.gz -2 02_TRIMMED_READS/{STRAIN}_2.fastq.gz -o 03_ASSEMBLIES/spades -t $SLURM_CPUS_PER_TASK --isolate
 ```
 
 ### Hybrid assembly with Unicycler
