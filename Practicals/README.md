@@ -236,7 +236,7 @@ sinteractive --account --time --mem --cores
 
 ```bash
 module purge
-module load spades/3.15.0
+module load spades/3.15.5
 spades.py -1 02_TRIMMED_READS/{STRAIN}_1.fastq.gz -2 02_TRIMMED_READS/{STRAIN}_2.fastq.gz -o 03_ASSEMBLIES/spades -t $SLURM_CPUS_PER_TASK --isolate
 ```
 
