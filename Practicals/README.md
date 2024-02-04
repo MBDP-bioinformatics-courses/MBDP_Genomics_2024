@@ -131,7 +131,7 @@ cutadapt \
     -o 02_TRIMMED_READS/{STRAIN}_1.fastq.gz \
     -p 02_TRIMMED_READS/{STRAIN}_2.fastq.gz \
     path-to-R1-file \
-    path-to-R1-file \
+    path-to-R2-file \
     --minimum-length 80 \
     > 00_LOGS/cutadapt.log
 ```
