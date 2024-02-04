@@ -122,6 +122,10 @@ And what is specified with option `-p` or `-o`?
 And how about `-m` and `-j`?  
 You can find the answers from Cutadapt [manual](http://cutadapt.readthedocs.io).
 
+```
+module load cutadapt
+```
+
 Remember to change the strains name and modify the paths to the raw read files.  
 
 ```bash
