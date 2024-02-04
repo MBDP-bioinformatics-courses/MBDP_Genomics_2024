@@ -324,7 +324,7 @@ Then run CheckM2 with the following command.
 
 Hopefully now we have come to some conclusion about what is the best assembly and from now on we will continue with only one. 
 
-## Mapping reads to the assembly and calculating the genome coverage
+## Mapping reads to the assembly and calculating the genome coverage (OPTIONAL)
 
 To calculate the genome coverage, all the reads used for the assembly must be mapped to the final genome. As an example we will only map the short reads against the genome.  
 For that, we use three programs: Bowtie2 to map the reads; Samtools to sort and make an index of the mapped reads; and bedtools to make the calculation. For long reads the process woul dbe the same, except you would need to use some othere mapping software (e.g. minimap2). 
