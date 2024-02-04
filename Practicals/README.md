@@ -166,9 +166,8 @@ Then open a new interactive task with more memory
 ```bash
 sinteractive -A project_2005590 -m 45000 -c 4
 ```
-NanoPlot and NanoQC are not pre-installed to Puhti so we need to reset the modules and activate the virtual environment. If the environment is already loaded you can skip this step.
 
-Generate graphs for visualization of reads quality and length distribution
+Generate graphs for visualization of read quality and length distribution.  
 
 ```bash
 /projappl/project_2005590/nanotools/bin/NanoPlot \
@@ -178,9 +177,9 @@ Generate graphs for visualization of reads quality and length distribution
     --fastq path-to/your_raw_nanopore_reads.fastq.gz
 ```
 
-Transfer to your computer and check two plots inside the nanoplot output folder:
-Reads quality distribution: `LengthvsQualityScatterPlot_kde.png`
-Reads length distribution: `Non_weightedLogTransformed_HistogramReadlength.png`
+Transfer the resulting HTML-report (`NanoPlot-report.html`) to your computer and have a look at the quality of our nanopore reads.  
+
+Then run also NanoQC to the reads.  
 
 ```bash
 /projappl/project_2005590/nanotools/bin/nanoQC \
@@ -214,10 +213,10 @@ Use NanoPlot to see how the trimming worked out.
 /projappl/project_2005590/nanotools/bin/NanoPlot ... 
 ```
 
-## Genome assembly 
+## Genome assembly  
 
 Now that you have good trimmed sequences, we can assemble the reads. For assembling you will need more resources than the default.  
-Allocate 4 cpus, 40000 Mb of memory (40G) and 2 hours. Remember also the accounting project, `project_2005590`.  
+Allocate 6 cpus, 40000 Mb of memory (40G) and 2 hours. Remember also the accounting project, `project_2005590`.  
 
 ```bash
 sinteractive --account --time --mem --cores
@@ -278,10 +277,13 @@ Each of the assemblers produces also an assembly graph. Download the assembly gr
 
 ## Assembly QC
 
-After the assemblies are we will use Quality Assessment Tool for Genome Assemblies, [Quast](http://quast.sourceforge.net/) for (comparing and) evaluating our assemblies.
+After the assemblies are we will use Quality Assessment Tool for Genome Assemblies, [Quast](http://quast.sourceforge.net/) for (comparing and) evaluating our assemblies.  
 
 ```bash
-module purge
+sinteractive -A project_2005590
+```
+
+```bash
 module load quast
 quast.py --output-dir 03_ASSEMBLIES/QUAST 03_ASSEMBLIES/*.fasta
 ```
@@ -310,7 +312,7 @@ One way to get a better sense is to estimate the completeness of the assemblies.
 We will use [CheckM2](https://github.com/chklovski/CheckM2) to calculate the completeness and possible contamination in our genome.  
 Allocate some resources (>40G memory & 4 threads) and run CheckM2.
 
-Then run CheckM2 with the following command. 
+Allocate resources (1 hour, 4 CPUs and 40G of memory) and run CheckM2 with the following command.
 
 ```bash
 /projappl/project_2005590/tax_tools/bin/checkm2 predict \
