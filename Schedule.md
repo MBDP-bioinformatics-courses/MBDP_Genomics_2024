@@ -13,7 +13,7 @@
 | 13:15-13:30 | **Jenni Hultman**: [Seq trimming and QC lecture](Lectures/QC_filtering.pdf) |
 | 13:30-14:30 | **ALL**: Hands-on [QC and trimming](Practicals/README.md#qc-and-trimming-for-illumina-reads) and MBDP coffee break at 14:00 |
 | 14:30-14:45 | **Jenni Hultman**: Assembly lecture |
-| 14:45-16:00 | **ALL**: [Assembly hands-on](Practicals/README.md#Genome-assembly-with-Spades) |
+| 14:45-16:00 | **ALL**: [Assembly hands-on](Practicals/README.md#genome-assembly) |
 
 ## Tuesday
 
@@ -26,7 +26,7 @@
 | Time | Description |
 | --- | --- |
 | 08:30-09:00 | **Antti Karkman**: [Assembly QC lecture](Lectures/lecture_assemblyQC.pdf)|
-| 09:00-09:30 | **ALL**: [Assembly QC hands-on](Practicals/README.md#Assembly_QC)|
+| 09:00-09:30 | **ALL**: [Assembly QC hands-on](Practicals/README.md#assembly-qc)|
 | 09:30-10:00 | **Antti Karkman/Jenni Hultman**: [Annotation lecture](Lectures/Genome_Annotation.pdf)|
 | 10:00-12:00 | **ALL**: Annotation hands-on|
 | 12:00-13:00 | **Lunch** |
