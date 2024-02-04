@@ -19,6 +19,7 @@ __Table of Contents:__
 13. [Comparison of secondary metabolites biosynthesis gene clusters](#comparison-of-secondary-metabolites-biosynthesis-gene-clusters)
 
 ## Setting up the course folders
+
 The main course directory is located in `/scratch/project_2005590`.  
 There you will set up your own directory where you will perform all the tasks for this course.  
 
@@ -81,6 +82,7 @@ You always need to specify the accounting project (`-A`, `--account`). Otherwise
 
 
 ## QC and trimming for Illumina reads
+
 QC for the raw data takes few minutes, depending on the allocation.  
 Go to your working directory and make a folder called `01_RAW_READS/FASTQC` for the QC reports of Illumina data.  
 
@@ -94,6 +96,7 @@ module load biokit
 ```
 
 ### Running FastQC
+
 Run `FastQC` for the raw Illumina reads in the 01_RAW_READS folder. What does the `-o` and `-t` flags refer to?
 
 ```bash
