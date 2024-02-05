@@ -1,36 +1,30 @@
 # Working with the command line
-__Copied from:__  
+
+__Modified from:__  
 _MBDP metagenomics course 2021_  
 _Igor S. Pessi_
+
 ## Connecting to Puhti
 
-### Windows users
-* Launch PuTTY
-* In “Host Name (or IP address)”, type **puhti.csc.fi** and click “Open”
-* In the following dialogue window, choose “Yes”
-* Type your CSC username and hit "Enter"
-* Type your password and hit "Enter"
-* To logout just type `exit` and hit "Enter"
+Go to [puhti.csc.fi](https://www.puhti.csc.fi/)and log in with your CSC or HAKA account. Select `>_ Login shell node` and perform the following  exercises in the terminal that opens in your browser.  
+You can also login to puhti with any other method of your choice.  
 
-### MacOS users
-* Launch Terminal (e.g. open the Launchpad and type **terminal**)
-* Type `ssh user@puhti.csc.fi` and hit "Enter" (change **user** for your own CSC username)
-* In the following dialogue, type `yes` and hit "Enter"
-* Type your password and hit "Enter"
-* To logout first type `exit`, hit "Enter", and close the Terminal window
 
 ## Introduction to Unix: exercises
+
 Most of our activities will be done using the Unix command line (aka Unix shell).  
 It is thus highly recommend to have at least a basic grasp of how to get around in the Unix shell.  
 We will now dedicate half hour or so to follow some basic to learn (or refresh) the basics of the Unix shell.  
 
 ### Important notes
+
 Things inside a box like this...
 
 ```bash
 mkdir unix_shell
 cd unix_shell
 ```
+
 ...represent commands you need to type in the shell. Each line is a command. Commands have to be typed in a single line, one at a time. After each command, hit “Enter” to execute it.
 
 Things starting with a pound sign (or hashtag)...
@@ -51,6 +45,7 @@ man mkdir
 ```
 
 ### Creating and navigating directories
+
 First let's see where we are:
 
 ```bash
@@ -100,6 +95,7 @@ HINT
 </details>  
 
 ### Creating a new file
+
 Let's create a new file called `myfile.txt` by launching the text editor `nano`:
 
 ```bash
@@ -112,13 +108,14 @@ Now inside the nano screen:
 
 2. Exit with ctrl+x
 
-3. To save the file, type **y** and hit "Enter"
+3. To save the file, type __y__ and hit "Enter"
 
 4. Confirm the name of the file and hit "Enter"
 
 List the contents of the folder. Can you see the file we have just created?
 
 ### Copying, renaming, moving and deleting files
+
 First let's create a new folder called `myfolder`. Do you remember how to do this?
 
 <details>

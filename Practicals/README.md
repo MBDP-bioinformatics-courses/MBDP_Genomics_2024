@@ -339,13 +339,18 @@ First build an index from the assembly.
 
 ```bash
 module load bowtie2
-bowtie2-build 03_ASSEMBLIES/KLB3.1_unicycler.fasta 03_ASSEMBLIES/KLB3.1
+bowtie2-build 03_ASSEMBLIES/{STRAIN}_unicycler.fasta 03_ASSEMBLIES/{STRAIN}
 ```
 
 Then map the short reads against the index.
 
 ```bash
-bowtie2 -x 03_ASSEMBLIES/KLB3.1 -1 02_TRIMMED_READS/KLB3.1_1.fastq.gz -2 02_TRIMMED_READS/KLB3.1_2.fastq.gz --threads $SLURM_CPUS_PER_TASK -S 05_MAPPING/KLB3.1.sam
+bowtie2 
+    -x 03_ASSEMBLIES/{STRAIN} \
+    -1 02_TRIMMED_READS/{STRAIN}_1.fastq.gz \
+    -2 02_TRIMMED_READS/{STRAIN}_2.fastq.gz \
+    --threads $SLURM_CPUS_PER_TASK \
+    -S 05_MAPPING/{STRAIN}.sam
 ```
 
 Then we process the resulting alignment file (`.sam`) and produce a sported and compressed format of that (`.bam`)
@@ -353,13 +358,14 @@ Then we process the resulting alignment file (`.sam`) and produce a sported and 
 ```bash
 module purge
 module load samtools
-samtools view -Sb 05_MAPPING/KLB3.1.sam |samtools sort > 05_MAPPING/KLB3.1.bam
-samtools index 05_MAPPING/KLB3.1.bam
+samtools view -Sb 05_MAPPING/{STRAIN}.sam |samtools sort > 05_MAPPING/{STRAIN}.bam
+samtools index 05_MAPPING/{STRAIN}.bam
 ```
 
 Then we can calculate the mean coveragre per each contig with [bamtocov](https://github.com/telatin/bamtocov). We will use one script (`average-coverage.py`) from the program that has can be found from `src` folder. It also needs the location of the actual `bamtocov` that it uses for calulating the coverage.  
+
 ```bash
-python3 src/average-coverage.py 05_MAPPING/WOD100.bam --bin /projappl/project_2005590/bamtocov/bin/bamtocov
+python3 src/average-coverage.py 05_MAPPING/{STRAIN}.bam --bin /projappl/project_2005590/bamtocov/bin/bamtocov
 ```
 
 Inspect the output from coverage calculation. What is the average coverage over the whole genome? Note that if the genome is in multiple contigs, you will get mean coverage for each of them.  And if some of the contigs are plasmids, their coverage might be different from the rest of the genome. __But why?__
@@ -371,7 +377,9 @@ An example how to map the long-reads to the assembly using [minimap2](https://gi
 ```bash
 module load minimap2
 module load samtools
-minimap2 -ax map-ont path-to/your-assembly.fasta path-to/trimmed-nanopore.fastq,gz |samtools view -Sb |samtools sort > 05_MAPPING/{STRAIN}_nanopore.bam
+minimap2 -ax map-ont path-to/your-assembly.fasta path-to/trimmed-nanopore.fastq,gz |\
+    samtools view -Sb |\
+    samtools sort > 05_MAPPING/{STRAIN}_nanopore.bam
 samtools index 05_MAPPING/{STRAIN}_nanopore.bam
 ```
 

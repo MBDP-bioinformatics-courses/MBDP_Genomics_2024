@@ -43,8 +43,8 @@
 
 | Time | Description |
 | --- | --- |
-| 08:30-09:15 | **Antti Karkman**: [Introduction to Anvi'o](Lectures/Pangenomics.pdf)|
-| 09:15-12:00 | **ALL**: [Pangenomics hands-on](Practicals/README.md#pangenomics-with-anvi'o) |
+| 10.00-10.30 | **Antti Karkman**: [Introduction to Anvi'o](Lectures/Pangenomics.pdf)|
+| 10.30-12:00 | **ALL**: [Pangenomics hands-on](Practicals/README.md#pangenomics-with-anvi'o) |
 | 12:00-13:00 | **Lunch** :plate_with_cutlery: |
 | 13:00-15:00 | **ALL**: Population genomics hands-on cont' and MBDP coffee break at 14:00|
 | 15:00-16:00 | **Q&A** & **Feedback**|
