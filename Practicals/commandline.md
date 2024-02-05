@@ -6,7 +6,7 @@ _Igor S. Pessi_
 
 ## Connecting to Puhti
 
-Go to [puhti.csc.fi](https://www.puhti.csc.fi/)and log in with your CSC or HAKA account. Select `>_ Login shell node` and perform the following  exercises in the terminal that opens in your browser.  
+Go to [puhti.csc.fi](https://www.puhti.csc.fi/) and log in with your CSC or HAKA account. Select `>_ Login shell node` and perform the following  exercises in the terminal that opens in your browser.  
 You can also login to puhti with any other method of your choice.  
 
 
