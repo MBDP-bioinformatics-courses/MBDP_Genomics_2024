@@ -272,7 +272,7 @@ And to make things a bit easier for some of the next steps, copy each of the ass
 There's one example, but do it for each of the three assemblies. And remember to nme them so that you know which is which.  
 
 ```bash
-cp 03_ASSEMBLIES/unicycler/renamed_assembly.fasta 03_ASSEMBLY/unicycler_assembly.fasta
+cp 03_ASSEMBLIES/unicycler/renamed_assembly.fasta 03_ASSEMBLIES/unicycler_assembly.fasta
 ```
 
 ## Assembly graphs
