@@ -405,21 +405,21 @@ Check the files inside the output folder.
 Download the assembly fasta file, the maping `.bam` (and `.bam.bai`) files and the genome annotation output (`.gff3`) to your own computer.  
 We can inspect these with IGV. The next steps will be done together. 
 
-
 ## Annotation and visualization of CRISPR-Cas and Phages (OPTIONAL)
 
-Some genome features are better annotated when considering the genome context of a region involving many genes, instead of looking at only one gene at the time. Two examples of this case are the CRISPR-Cas system and Phages.  
+Some genome features are better annotated when considering the genome context of a region involving many genes, instead of looking at only one gene at the time. Two examples of this case are the CRISPR-Cas system and bacteriophages.  
 
-Here we have to examples that are websites where you can upload your assembly.  
-The CRISPR-Cas can be annotated using [CRISPRone](https://omics.informatics.indiana.edu/CRISPRone/denovo.php) and Phages can be annotated using [PHASTER](https://phaster.ca/).
+Here we have examples that are websites where you can upload your assembly.  
+The CRISPR-Cas can be annotated using [CRISPRone](https://omics.informatics.indiana.edu/CRISPRone/denovo.php) and bacteriophages can be annotated using [PHASTER](https://phaster.ca/).  
+There's also a more detailed annotation pipeline for phages that requires an account and will take slightly longer to run, [geNomad](https://portal.nersc.gov/genomad/). You can try that as well if you have time.  
 
-Can you find any differences in the annotation of some specific genes when comparing the results of these tools with the Prokka annotation?
+Can you find any differences in the annotation of some specific genes when comparing the results of these tools with the Bakta annotation?
 
 ## Detection of secondary metabolites biosynthesis gene clusters (OPTIONAL)
 
 Biosynthetic genes putatively involved in the synthesis of secondary metabolites can identified using `antiSMASH`
 
-Got to `https://antismash.secondarymetabolites.org/#!/start`. You can load the assembled genome you obtained and turn on all the extra features.
+Go to [antiSMASH](https://antismash.secondarymetabolites.org/#!/start) website and submit the assembled genome there. You can load the assembled genome you obtained and turn on all the extra features.
 
 When the analysis is ready, you may be able to answer the following questions:
 
