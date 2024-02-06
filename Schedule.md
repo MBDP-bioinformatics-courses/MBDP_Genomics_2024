@@ -19,25 +19,24 @@
 
 | Time | Description |
 | --- | --- |
-| All-day | Reading: [Assembling the perfect bacterial genome using Oxford Nanopore and Illumina sequencing](Lectures/journal.pcbi.1010905.pdf)|
+| All-day | Reading: [Assembling the perfect bacterial genome using Oxford Nanopore and Illumina sequencing](Lectures/journal.pcbi.1010905.pdf) |
 
 ## Wednesday - Main Building, U3043
 
 | Time | Description |
 | --- | --- |
-| 10:00-10:30 | **Antti Karkman**: [Assembly QC lecture](Lectures/lecture_assemblyQC.pdf)|
-| 10:30-11:00 | **ALL**: [Assembly QC hands-on](Practicals/README.md#assembly-qc)|
-| 11:00-11:30 | **Antti Karkman/Jenni Hultman**: [Annotation lecture](Lectures/Genome_Annotation.pdf)|
-| 11:30-12:00 | **ALL**: Annotation hands-on|
+| 10:00-10:30 | **Antti Karkman**: [Assembly QC lecture](Lectures/lecture_assemblyQC.pdf) |
+| 10:30-11:00 | **ALL**: [Assembly QC hands-on](Practicals/README.md#assembly-qc) |
+| 11:00-11:30 | **Antti Karkman/Jenni Hultman**: [Annotation lecture](Lectures/Genome_Annotation.pdf) |
+| 11:30-12:00 | **ALL**: [Annotation hands-on](Practicals/README.md#genome-annotation-with-bakta) |
 | 12:00-13:00 | **Lunch** :plate_with_cutlery: |
-| 13:00-16:00 | **Jenni Hultman**:KBase tutorial and hands-on|
+| 13:00-16:00 | **Jenni Hultman**:KBase tutorial and hands-on |
 
 ## Thursday
 
 | Time | Description |
 | --- | --- |
 | All-day | Reading: [TBA](Lectures/)|
-
 
 ## Friday - Main Building, U3043
 
@@ -48,7 +47,3 @@
 | 12:00-13:00 | **Lunch** :plate_with_cutlery: |
 | 13:00-15:00 | **ALL**: Population genomics hands-on cont' and MBDP coffee break at 14:00|
 | 15:00-16:00 | **Q&A** & **Feedback**|
-
-
-
-
