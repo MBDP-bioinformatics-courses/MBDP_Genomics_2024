@@ -15,8 +15,6 @@ __Table of Contents:__
 9. [Genome annotation with Bakta](#genome-annotation-with-bakta)
 10. [Taxonomic annotation against GTDB](#taxonomic-annotation-against-gtdb)
 11. [Pangenomics with anvi'o](#pangenomics-with-anvio)
-12. [Detection  of secondary  metabolites biosynthesis gene clusters](#detection-of-secondary-metabolites-biosynthesis-gene-clusters)
-13. [Comparison of secondary metabolites biosynthesis gene clusters](#comparison-of-secondary-metabolites-biosynthesis-gene-clusters)
 
 ## Setting up the course folders
 
@@ -263,6 +261,7 @@ Normal is the default, but you can change it if you feel bold or conservative to
 Unicyler names the contigs with just numbers and this can create problems with some tools. So we need to rename them by adding "contig_" before the number.  
 
 ```bash
+module load biokit
 seqkit replace -p ^ -r contig_$1 03_ASSEMBLIES/unicycler/assembly.fasta > 03_ASSEMBLIES/unicycler/renamed_assembly.fasta
 ```
 
@@ -272,7 +271,7 @@ And to make things a bit easier for some of the next steps, copy each of the ass
 There's one example, but do it for each of the three assemblies. And remember to nme them so that you know which is which.  
 
 ```bash
-cp 03_ASSEMBLIES/unicycler/renamed_assembly.fasta 03_ASSEMBLY/unicycler_assembly.fasta
+cp 03_ASSEMBLIES/unicycler/renamed_assembly.fasta 03_ASSEMBLIES/unicycler_assembly.fasta
 ```
 
 ## Assembly graphs
