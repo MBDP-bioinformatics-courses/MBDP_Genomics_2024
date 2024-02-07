@@ -15,8 +15,6 @@ __Table of Contents:__
 9. [Genome annotation with Bakta](#genome-annotation-with-bakta)
 10. [Taxonomic annotation against GTDB](#taxonomic-annotation-against-gtdb)
 11. [Pangenomics with anvi'o](#pangenomics-with-anvio)
-12. [Detection  of secondary  metabolites biosynthesis gene clusters](#detection-of-secondary-metabolites-biosynthesis-gene-clusters)
-13. [Comparison of secondary metabolites biosynthesis gene clusters](#comparison-of-secondary-metabolites-biosynthesis-gene-clusters)
 
 ## Setting up the course folders
 
