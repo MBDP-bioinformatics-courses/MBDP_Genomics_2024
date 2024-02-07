@@ -36,7 +36,7 @@
 
 | Time | Description |
 | --- | --- |
-| All-day | Reading: [TBA](Lectures/)|
+| All-day | Reading: [Next-generation microbiology: from comparative genomics to gene function](Lectures/s13059-021-02344-9.pdf)|
 
 ## Friday - Main Building, U3043
 
