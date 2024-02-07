@@ -427,6 +427,21 @@ When the analysis is ready, you may be able to answer the following questions:
 2. Which different types of BGC were detected and what is the difference among these types?
 3. Do you think your strain produce all these metabolites? Why?
 
+## Extracting KEGG annotations from Bakta output
+
+Bakta also gives the KEGG IDs for different metabolic enzymes in our genome. To reconstruct metabolic pathways based on these annotations, we need to extract them from one the annotation files.  
+Navigate to the Bakta output folder and run the following command:  
+
+```bash
+grep -o "KEGG:K....." *.gff3 | tr ":" "\t" > kegg_ids.txt 
+```
+
+Investigate the file `kegg_ids.txt` using `less`.  
+These are known as KO identifiers and is how we link genes to metabolic pathways in the KEGG database.  
+This will allow us to put the gene annotations in the context of metabolic pathways.
+
+Go to [KEGG Mapper](https://www.genome.jp/kegg/mapper/reconstruct.html) and upload the `kegg_ids.txt` file. Finally press `Exec`.  
+
 ## Taxonomic annotation against GTDB
 
 Next thing is to give a name to our strain. In other words, what species did we assemble.  
@@ -435,7 +450,7 @@ We will use a tool called [GTDB-tk](https://github.com/ecogenomics/gtdbtk) to gi
 GTDB-tk uses the GTDB database, which is big, but it has been downloaded and can be found from the `DB` folder under the course project.  
 We justr need to make an environemntal variable pointing to that, so the tool can find it.  
 
-We will need more memory than previously, so allocate XX G, 6-12 CPUS and 2 hours.
+We will need more memory than previously, so allocate 50G, 6-12 CPUS and 1 hours.
 
 ```bash
 export GTDBTK_DATA_PATH=/scratch/project_2005590/DB/GTDB/release214/
