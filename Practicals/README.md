@@ -120,6 +120,10 @@ And what is specified with option `-p` or `-o`?
 And how about `-m` and `-j`?  
 You can find the answers from Cutadapt [manual](http://cutadapt.readthedocs.io).
 
+```
+module load cutadapt
+```
+
 Remember to change the strains name and modify the paths to the raw read files.  
 
 ```bash
@@ -129,7 +133,7 @@ cutadapt \
     -o 02_TRIMMED_READS/{STRAIN}_1.fastq.gz \
     -p 02_TRIMMED_READS/{STRAIN}_2.fastq.gz \
     path-to-R1-file \
-    path-to-R1-file \
+    path-to-R2-file \
     --minimum-length 80 \
     > 00_LOGS/cutadapt.log
 ```
@@ -164,9 +168,8 @@ Then open a new interactive task with more memory
 ```bash
 sinteractive -A project_2005590 -m 45000 -c 4
 ```
-NanoPlot and NanoQC are not pre-installed to Puhti so we need to reset the modules and activate the virtual environment. If the environment is already loaded you can skip this step.
 
-Generate graphs for visualization of reads quality and length distribution
+Generate graphs for visualization of read quality and length distribution.  
 
 ```bash
 /projappl/project_2005590/nanotools/bin/NanoPlot \
@@ -176,9 +179,9 @@ Generate graphs for visualization of reads quality and length distribution
     --fastq path-to/your_raw_nanopore_reads.fastq.gz
 ```
 
-Transfer to your computer and check two plots inside the nanoplot output folder:
-Reads quality distribution: `LengthvsQualityScatterPlot_kde.png`
-Reads length distribution: `Non_weightedLogTransformed_HistogramReadlength.png`
+Transfer the resulting HTML-report (`NanoPlot-report.html`) to your computer and have a look at the quality of our nanopore reads.  
+
+Then run also NanoQC to the reads.  
 
 ```bash
 /projappl/project_2005590/nanotools/bin/nanoQC \
@@ -212,10 +215,10 @@ Use NanoPlot to see how the trimming worked out.
 /projappl/project_2005590/nanotools/bin/NanoPlot ... 
 ```
 
-## Genome assembly 
+## Genome assembly  
 
 Now that you have good trimmed sequences, we can assemble the reads. For assembling you will need more resources than the default.  
-Allocate 4 cpus, 40000 Mb of memory (40G) and 2 hours. Remember also the accounting project, `project_2005590`.  
+Allocate 6 cpus, 40000 Mb of memory (40G) and 2 hours. Remember also the accounting project, `project_2005590`.  
 
 ```bash
 sinteractive --account --time --mem --cores
@@ -224,15 +227,15 @@ sinteractive --account --time --mem --cores
 ### Nanopore only assembly with FLye
 
 ```bash
-/projappl/project_2005590/flye/bin/flye --nano-hq 02_TRIMMED_READS/WOD100_nanopore.fastq.gz --out-dir 03_ASSEMBLIES/flye --threads $SLURM_CPUS_PER_TASK
+/projappl/project_2005590/flye/bin/flye --nano-hq 02_TRIMMED_READS/{STRAIN}_nanopore.fastq.gz --out-dir 03_ASSEMBLIES/flye --threads $SLURM_CPUS_PER_TASK
  ```
 
 ### Illumina only assembly with spades
 
 ```bash
 module purge
-module load spades/3.15.0
-spades.py -1 02_TRIMMED_READS/WOD100_1.fastq.gz -2 02_TRIMMED_READS/WOD100_2.fastq.gz -o 03_ASSEMBLIES/spades -t $SLURM_CPUS_PER_TASK --isolate
+module load spades/3.15.5
+spades.py -1 02_TRIMMED_READS/{STRAIN}_1.fastq.gz -2 02_TRIMMED_READS/{STRAIN}_2.fastq.gz -o 03_ASSEMBLIES/spades -t $SLURM_CPUS_PER_TASK --isolate
 ```
 
 ### Hybrid assembly with Unicycler
@@ -267,7 +270,7 @@ And to make things a bit easier for some of the next steps, copy each of the ass
 There's one example, but do it for each of the three assemblies. And remember to nme them so that you know which is which.  
 
 ```bash
-cp 03_ASSEMBLIES/unicycler/renamed_assembly.fasta 03_ASSEMBLY/unicycler_assembly.fasta
+cp 03_ASSEMBLIES/unicycler/renamed_assembly.fasta 03_ASSEMBLIES/unicycler_assembly.fasta
 ```
 
 ## Assembly graphs
@@ -276,10 +279,13 @@ Each of the assemblers produces also an assembly graph. Download the assembly gr
 
 ## Assembly QC
 
-After the assemblies are we will use Quality Assessment Tool for Genome Assemblies, [Quast](http://quast.sourceforge.net/) for (comparing and) evaluating our assemblies.
+After the assemblies are we will use Quality Assessment Tool for Genome Assemblies, [Quast](http://quast.sourceforge.net/) for (comparing and) evaluating our assemblies.  
 
 ```bash
-module purge
+sinteractive -A project_2005590
+```
+
+```bash
 module load quast
 quast.py --output-dir 03_ASSEMBLIES/QUAST 03_ASSEMBLIES/*.fasta
 ```
@@ -308,7 +314,7 @@ One way to get a better sense is to estimate the completeness of the assemblies.
 We will use [CheckM2](https://github.com/chklovski/CheckM2) to calculate the completeness and possible contamination in our genome.  
 Allocate some resources (>40G memory & 4 threads) and run CheckM2.
 
-Then run CheckM2 with the following command. 
+Allocate resources (1 hour, 4 CPUs and 40G of memory) and run CheckM2 with the following command.
 
 ```bash
 /projappl/project_2005590/tax_tools/bin/checkm2 predict \
@@ -322,7 +328,7 @@ Then run CheckM2 with the following command.
 
 Hopefully now we have come to some conclusion about what is the best assembly and from now on we will continue with only one. 
 
-## Mapping reads to the assembly and calculating the genome coverage
+## Mapping reads to the assembly and calculating the genome coverage (OPTIONAL)
 
 To calculate the genome coverage, all the reads used for the assembly must be mapped to the final genome. As an example we will only map the short reads against the genome.  
 For that, we use three programs: Bowtie2 to map the reads; Samtools to sort and make an index of the mapped reads; and bedtools to make the calculation. For long reads the process woul dbe the same, except you would need to use some othere mapping software (e.g. minimap2). 
@@ -331,13 +337,18 @@ First build an index from the assembly.
 
 ```bash
 module load bowtie2
-bowtie2-build 03_ASSEMBLIES/KLB3.1_unicycler.fasta 03_ASSEMBLIES/KLB3.1
+bowtie2-build 03_ASSEMBLIES/{STRAIN}_unicycler.fasta 03_ASSEMBLIES/{STRAIN}
 ```
 
 Then map the short reads against the index.
 
 ```bash
-bowtie2 -x 03_ASSEMBLIES/KLB3.1 -1 02_TRIMMED_READS/KLB3.1_1.fastq.gz -2 02_TRIMMED_READS/KLB3.1_2.fastq.gz --threads $SLURM_CPUS_PER_TASK -S 05_MAPPING/KLB3.1.sam
+bowtie2 
+    -x 03_ASSEMBLIES/{STRAIN} \
+    -1 02_TRIMMED_READS/{STRAIN}_1.fastq.gz \
+    -2 02_TRIMMED_READS/{STRAIN}_2.fastq.gz \
+    --threads $SLURM_CPUS_PER_TASK \
+    -S 05_MAPPING/{STRAIN}.sam
 ```
 
 Then we process the resulting alignment file (`.sam`) and produce a sported and compressed format of that (`.bam`)
@@ -345,13 +356,14 @@ Then we process the resulting alignment file (`.sam`) and produce a sported and 
 ```bash
 module purge
 module load samtools
-samtools view -Sb 05_MAPPING/KLB3.1.sam |samtools sort > 05_MAPPING/KLB3.1.bam
-samtools index 05_MAPPING/KLB3.1.bam
+samtools view -Sb 05_MAPPING/{STRAIN}.sam |samtools sort > 05_MAPPING/{STRAIN}.bam
+samtools index 05_MAPPING/{STRAIN}.bam
 ```
 
 Then we can calculate the mean coveragre per each contig with [bamtocov](https://github.com/telatin/bamtocov). We will use one script (`average-coverage.py`) from the program that has can be found from `src` folder. It also needs the location of the actual `bamtocov` that it uses for calulating the coverage.  
+
 ```bash
-python3 src/average-coverage.py 05_MAPPING/WOD100.bam --bin /projappl/project_2005590/bamtocov/bin/bamtocov
+python3 src/average-coverage.py 05_MAPPING/{STRAIN}.bam --bin /projappl/project_2005590/bamtocov/bin/bamtocov
 ```
 
 Inspect the output from coverage calculation. What is the average coverage over the whole genome? Note that if the genome is in multiple contigs, you will get mean coverage for each of them.  And if some of the contigs are plasmids, their coverage might be different from the rest of the genome. __But why?__
@@ -363,7 +375,9 @@ An example how to map the long-reads to the assembly using [minimap2](https://gi
 ```bash
 module load minimap2
 module load samtools
-minimap2 -ax map-ont path-to/your-assembly.fasta path-to/trimmed-nanopore.fastq,gz |samtools view -Sb |samtools sort > 05_MAPPING/{STRAIN}_nanopore.bam
+minimap2 -ax map-ont path-to/your-assembly.fasta path-to/trimmed-nanopore.fastq,gz |\
+    samtools view -Sb |\
+    samtools sort > 05_MAPPING/{STRAIN}_nanopore.bam
 samtools index 05_MAPPING/{STRAIN}_nanopore.bam
 ```
 
@@ -389,21 +403,21 @@ Check the files inside the output folder.
 Download the assembly fasta file, the maping `.bam` (and `.bam.bai`) files and the genome annotation output (`.gff3`) to your own computer.  
 We can inspect these with IGV. The next steps will be done together. 
 
-
 ## Annotation and visualization of CRISPR-Cas and Phages (OPTIONAL)
 
-Some genome features are better annotated when considering the genome context of a region involving many genes, instead of looking at only one gene at the time. Two examples of this case are the CRISPR-Cas system and Phages.  
+Some genome features are better annotated when considering the genome context of a region involving many genes, instead of looking at only one gene at the time. Two examples of this case are the CRISPR-Cas system and bacteriophages.  
 
-Here we have to examples that are websites where you can upload your assembly.  
-The CRISPR-Cas can be annotated using [CRISPRone](https://omics.informatics.indiana.edu/CRISPRone/denovo.php) and Phages can be annotated using [PHASTER](https://phaster.ca/).
+Here we have examples that are websites where you can upload your assembly.  
+The CRISPR-Cas can be annotated using [CRISPRone](https://omics.informatics.indiana.edu/CRISPRone/denovo.php) and bacteriophages can be annotated using [PHASTER](https://phaster.ca/).  
+There's also a more detailed annotation pipeline for phages that requires an account and will take slightly longer to run, [geNomad](https://portal.nersc.gov/genomad/). You can try that as well if you have time.  
 
-Can you find any differences in the annotation of some specific genes when comparing the results of these tools with the Prokka annotation?
+Can you find any differences in the annotation of some specific genes when comparing the results of these tools with the Bakta annotation?
 
 ## Detection of secondary metabolites biosynthesis gene clusters (OPTIONAL)
 
 Biosynthetic genes putatively involved in the synthesis of secondary metabolites can identified using `antiSMASH`
 
-Got to `https://antismash.secondarymetabolites.org/#!/start`. You can load the assembled genome you obtained and turn on all the extra features.
+Go to [antiSMASH](https://antismash.secondarymetabolites.org/#!/start) website and submit the assembled genome there. You can load the assembled genome you obtained and turn on all the extra features.
 
 When the analysis is ready, you may be able to answer the following questions:
 
