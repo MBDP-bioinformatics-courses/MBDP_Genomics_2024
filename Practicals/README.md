@@ -261,6 +261,7 @@ Normal is the default, but you can change it if you feel bold or conservative to
 Unicyler names the contigs with just numbers and this can create problems with some tools. So we need to rename them by adding "contig_" before the number.  
 
 ```bash
+module load biokit
 seqkit replace -p ^ -r contig_$1 03_ASSEMBLIES/unicycler/assembly.fasta > 03_ASSEMBLIES/unicycler/renamed_assembly.fasta
 ```
 
