@@ -25,7 +25,7 @@
 
 | Time | Description |
 | --- | --- |
-| 10:00-10:30 | **Antti Karkman**: [Assembly QC lecture](Lectures/lecture_assemblyQC.pdf) |
+| 10:00-10:30 | **Jenni Hultman**: [Assembly QC lecture](Lectures/lecture_assemblyQC.pdf) |
 | 10:30-11:00 | **ALL**: [Assembly QC hands-on](Practicals/README.md#assembly-qc) |
 | 11:00-11:30 | **Antti Karkman**: [Annotation lecture](Lectures/Genome_annotation.pdf) |
 | 11:30-12:00 | **ALL**: [Annotation hands-on](Practicals/README.md#genome-annotation-with-bakta) |
