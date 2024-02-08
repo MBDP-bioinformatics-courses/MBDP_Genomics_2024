@@ -469,9 +469,9 @@ The output will contain a file with the most likely taxonomic annotation for you
 
 ### Reference genomes
 
-Before we can do any pangenomics, we need some reference genomes. Go to [NCBI Datasets](https://www.ncbi.nlm.nih.gov/datasets/) and select `Genome`. 
-Then search with the taxonomy you got. Either on species level or on genus level. When you get the list of available reference genomes, filter them to include only the ones that have been annotated by NCBI RefSeq and have assembly level at least chromosome, complete would be better. Then from `Select colums` tick `RefSeq` to show the accessions.  
-Then select 4-8 (WOD100: 4-6; KLB3.1: 6-8) genomes for the pangenomic analysis and write their RefSeq accessions to a file (one accession per line) and finally copy the file to your own folder in Puhti under `06_PANGENOMICS` with the name `genome-accessions.txt`.  
+Before we can do any pangenomics, we need some reference genomes. Go to [NCBI Datasets](https://www.ncbi.nlm.nih.gov/datasets/) and select `Genome`.  
+Then search with the taxonomy you got for your strain, either on species or genus level. When you get the list of available reference genomes, filter them to include only the ones that have been annotated by NCBI RefSeq and have assembly level at least chromosome, complete would be better. Then from `Select colums` tick `RefSeq` to show the accessions.  
+Then select few genomes (WOD100: 4-6; KLB3.1: 6-8) for the pangenomic analysis and write their RefSeq accessions to a file (one accession per line) and finally copy the file to your own folder in Puhti under `06_PANGENOMICS` with the name `genome-accessions.txt`.  
 
 ```bash
 cd 06_PANGENOMICS
