@@ -338,7 +338,7 @@ First build an index from the assembly.
 
 ```bash
 module load bowtie2
-bowtie2-build 03_ASSEMBLIES/{STRAIN}_unicycler.fasta 03_ASSEMBLIES/{STRAIN}
+bowtie2-build 03_ASSEMBLIES/unicycler_assembly.fasta 03_ASSEMBLIES/{STRAIN}
 ```
 
 Then map the short reads against the index.
