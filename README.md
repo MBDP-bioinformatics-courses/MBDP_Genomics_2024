@@ -42,3 +42,7 @@ Eduroam or Helsinki UniGuest networks are available
 
 :woman_technologist: Docent Jenni Hultman, LUKE  
 :man_technologist: University lecturer Antti Karkman, University of Helsinki
+
+## Feedback
+
+https://presemo.helsinki.fi/mbdp105/
