@@ -487,6 +487,8 @@ We need to process the Genbank files for anvi'o, first create a folder called `0
 mkdir 01_GENOMES
 ```
 
+Apply for resources (20-40 Gb, 6 CPUs and ~3 hours) before your start.  
+
 ```bash
 module load anvio
 
